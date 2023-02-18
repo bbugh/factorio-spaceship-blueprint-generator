@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { greet } from 'image-to-blueprint';
+  import { helloWorld, upperCase } from 'image-to-blueprint';
+  import { readImageFromClipboard } from './utils';
 // 	let  avatar, fileinput;
 
 // 	const onFileSelected =(e)=>{
@@ -13,7 +14,8 @@
 </script>
 
 <main>
-  <button on:click={() => greet()}>Greet</button>
+  <button on:click={() => helloWorld(upperCase('banana'))}>Greet</button>
+  <button on:click={() => readImageFromClipboard()}>Read Image</button>
   <!-- {#if avatar}
   <img class="avatar" src="{avatar}" alt="d" />
   {:else}
