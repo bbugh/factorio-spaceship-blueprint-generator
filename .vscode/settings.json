@@ -1,0 +1,5 @@
+{
+  "rust-analyzer.linkedProjects": [
+    "packages/image-to-blueprint/Cargo.toml"
+  ]
+}
