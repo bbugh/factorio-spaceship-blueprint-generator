@@ -14,8 +14,6 @@ use num_traits::ToPrimitive;
 use serde::{Deserialize, Serialize};
 use tsify::Tsify;
 
-const MINIMUM_ALPHA: u8 = 1;
-
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global allocator.
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
@@ -98,20 +96,26 @@ pub struct BlueprintResult {
 // HACK: This is a workaround for wasm_bindgen not supporting custom return types
 #[wasm_bindgen(typescript_custom_section)]
 const TS_APPEND_CONTENT: &'static str = r#"
-export function getBlueprintFromImage(image_data: Uint8Array): BlueprintResult;
+export function getBlueprintFromImage(image_data: Uint8Array, max_alpha: number, floor_tile_name: string, wall_tile_name: string): BlueprintResult;
 "#;
 
 #[wasm_bindgen(js_name = getBlueprintFromImage, skip_typescript)]
-pub fn get_blueprint_from_image(image_data: &[u8]) -> Result<JsValue, JsValue> {
+pub fn get_blueprint_from_image(
+    image_data: &[u8],
+    max_alpha: u8,
+    floor_tile_name: &str,
+    wall_tile_name: &str,
+) -> Result<JsValue, JsValue> {
     let image = match image::load_from_memory(image_data) {
         Ok(img) => img,
         Err(e) => return Err(JsError::new(&format!("{}", e)).into()),
     };
 
-    let blueprint = match create_blueprint_from_image(image) {
-        Ok(blueprint) => blueprint,
-        Err(e) => return Err(JsError::new(&format!("{}", e)).into()),
-    };
+    let blueprint =
+        match create_blueprint_from_image(image, max_alpha, floor_tile_name, wall_tile_name) {
+            Ok(blueprint) => blueprint,
+            Err(e) => return Err(JsError::new(&format!("{}", e)).into()),
+        };
 
     let blueprint_image = blueprint_image_from_blueprint(&blueprint);
     let (width, height) = blueprint_image.dimensions();
@@ -159,7 +163,12 @@ fn blueprint_string_from_blueprint(
     Ok(blueprint_string)
 }
 
-fn create_blueprint_from_image(img: DynamicImage) -> Result<Blueprint, Box<dyn std::error::Error>> {
+fn create_blueprint_from_image(
+    img: DynamicImage,
+    maximum_alpha: u8,
+    floor_tile_name: &str,
+    wall_tile_name: &str,
+) -> Result<Blueprint, Box<dyn std::error::Error>> {
     let (width, height) = img.dimensions();
 
     let mut tiles: Vec<Tile> = Vec::new();
@@ -168,7 +177,7 @@ fn create_blueprint_from_image(img: DynamicImage) -> Result<Blueprint, Box<dyn s
     for y in 0..height {
         for x in 0..width {
             let pixel = img.get_pixel(x, y);
-            if pixel[3] <= MINIMUM_ALPHA {
+            if pixel[3] <= maximum_alpha {
                 continue;
             }
 
@@ -177,7 +186,7 @@ fn create_blueprint_from_image(img: DynamicImage) -> Result<Blueprint, Box<dyn s
                     x: R64::new(x as f64),
                     y: R64::new(y as f64),
                 },
-                name: "se-spaceship-floor".to_string(),
+                name: floor_tile_name.to_string(),
             });
 
             let mut edge = false;
@@ -190,7 +199,7 @@ fn create_blueprint_from_image(img: DynamicImage) -> Result<Blueprint, Box<dyn s
                     let ny = y as i32 + j;
                     if nx >= 0 && ny >= 0 && nx < width as i32 && ny < height as i32 {
                         let npixel = img.get_pixel(nx as u32, ny as u32);
-                        if npixel[3] < MINIMUM_ALPHA {
+                        if npixel[3] < maximum_alpha {
                             edge = true;
                             break;
                         }
@@ -199,7 +208,7 @@ fn create_blueprint_from_image(img: DynamicImage) -> Result<Blueprint, Box<dyn s
             }
             if edge {
                 entities.push(new_entity(
-                    "se-spaceship-wall".to_string(),
+                    wall_tile_name.to_string(),
                     std::num::NonZeroUsize::new(entity_index).unwrap(),
                     Position {
                         x: R64::new(x as f64),

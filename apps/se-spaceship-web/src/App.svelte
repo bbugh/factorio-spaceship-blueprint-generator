@@ -4,6 +4,9 @@
 
   let blueprint = '';
   let error = '';
+  let alpha=1;
+  let floorTile = "se-spaceship-floor";
+  let wallTile = "se-spaceship-wall";
 
   document.addEventListener('paste', async (event) => {
     error = '';
@@ -14,7 +17,7 @@
         const arrayBuffer = await blob.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
         try {
-          const result = getBlueprintFromImage(uint8Array);
+          const result = getBlueprintFromImage(uint8Array, alpha, floorTile, wallTile);
           blueprint = result.base64
           console.log(blueprint);
 
@@ -58,6 +61,31 @@ let fileinput;
 </script>
 
 <main>
+
+  <div>
+    <h1>Options</h1>
+
+    <div style="display: flex; flex-direction: row;">
+      <label for="alpha">Alpha</label>
+      <input type="range" min="1" max="254" class="slider" bind:value={alpha}>
+      <div>{alpha}</div>
+    </div>
+
+    <div style="display: flex; flex-direction: row;">
+      <label for="floorTile">Floor Tile</label>
+      <input type="text" bind:value={floorTile}>
+    </div>
+
+    <div style="display: flex; flex-direction: row;">
+      <label for="wallTile">Wall Tile</label>
+      <input type="text" bind:value={wallTile}>
+    </div>
+    <!-- <input type="range" min="1" max="254" class="slider" bind:value={alpha}>
+    <div>{alpha}</div> -->
+
+    <!-- <input type="text" bind:value={floorTile}>
+    <input type="text" bind:value={wallTile}> -->
+  </div>
 
   <div class="chan" on:click={()=>{fileinput.click();}} on:keydown={()=>{fileinput.click();}} >Choose Image</div>
   <div class="error">{error}</div>
