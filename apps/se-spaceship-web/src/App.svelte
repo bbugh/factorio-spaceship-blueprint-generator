@@ -14,8 +14,28 @@
         const arrayBuffer = await blob.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
         try {
-          blueprint = getBlueprintFromImage(uint8Array);
+          const result = getBlueprintFromImage(uint8Array);
+          blueprint = result.base64
           console.log(blueprint);
+
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = result.image.width;
+          canvas.height = result.image.height;
+
+          // Create a Uint8Array from the image data
+          const imgData = new Uint8ClampedArray(result.image.data);
+
+          // Create a new ImageData object
+          const imageData = new ImageData(imgData, result.image.width, result.image.height);
+
+          // Draw the image data onto the canvas
+          ctx.putImageData(imageData, 0, 0);
+
+          // Add the canvas to the page
+          document.body.appendChild(canvas);
+
+
         } catch (e) {
           error = `ERROR: ${e.message}`;
         }

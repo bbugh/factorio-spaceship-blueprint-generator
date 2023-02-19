@@ -8,10 +8,11 @@ use factorio_blueprint::{
     objects::{Blueprint, Color, Entity, Position, Tile},
     BlueprintCodec, Container,
 };
-use image::{DynamicImage, GenericImageView, ImageBuffer};
+use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba};
 use noisy_float::types::{R32, R64};
 use num_traits::ToPrimitive;
 use serde::{Deserialize, Serialize};
+use tsify::Tsify;
 
 const MINIMUM_ALPHA: u8 = 1;
 const TILE_SIZE: u32 = 16;
@@ -80,11 +81,27 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 // //     JsValue::from_str(&format!("{}", error))
 // // }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Tsify, Serialize, Deserialize)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct BlueprintImage {
+    pub width: u32,
+    pub height: u32,
+    #[tsify(type = "Uint8Array")]
+    pub data: Vec<u8>,
+}
+
+// #[derive(Serialize, Deserialize)]
+#[derive(Tsify, Serialize, Deserialize)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct BlueprintResult {
     pub base64: String,
-    pub image: Vec<u8>,
+    pub image: BlueprintImage,
 }
+
+#[wasm_bindgen(typescript_custom_section)]
+const TS_APPEND_CONTENT: &'static str = r#"
+export function getBlueprintFromImage(image_data: Uint8Array): BlueprintResult;
+"#;
 
 #[wasm_bindgen(js_name = getBlueprintFromImage)]
 pub fn get_blueprint_from_image(image_data: &[u8]) -> Result<JsValue, JsValue> {
@@ -98,9 +115,18 @@ pub fn get_blueprint_from_image(image_data: &[u8]) -> Result<JsValue, JsValue> {
         Err(e) => return Err(JsError::new(&format!("{}", e)).into()),
     };
 
+    let blueprint_image = blueprint_image_from_blueprint(&blueprint);
+    let (width, height) = blueprint_image.dimensions();
+
+    let image_result = BlueprintImage {
+        width,
+        height,
+        data: blueprint_image.into_bytes(),
+    };
+
     let blueprint_result = BlueprintResult {
-        base64: blueprint_string_from_blueprint(blueprint).unwrap(),
-        image: blueprint_image_from_blueprint(&blueprint).into_bytes(),
+        base64: blueprint_string_from_blueprint(&blueprint).unwrap(),
+        image: image_result,
     };
 
     Ok(serde_wasm_bindgen::to_value(&blueprint_result)?)
@@ -127,9 +153,9 @@ pub fn get_blueprint_from_image(image_data: &[u8]) -> Result<JsValue, JsValue> {
 }
 
 fn blueprint_string_from_blueprint(
-    blueprint: Blueprint,
+    blueprint: &Blueprint,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    let container = Container::from(blueprint);
+    let container = Container::from(blueprint.clone());
     let blueprint_string =
         BlueprintCodec::encode_string(&container).expect("failed to encode blueprint");
     Ok(blueprint_string)
@@ -241,54 +267,78 @@ fn new_entity(name: String, entity_number: NonZeroUsize, position: Position) -> 
     }
 }
 
+enum BlueprintPosition {
+    Tile,
+    Entity,
+}
+
 fn blueprint_image_from_blueprint(bp: &Blueprint) -> DynamicImage {
-    let (min_x, min_y, max_x, max_y) = get_bounds(bp);
+    let (min_x, min_y, max_x, max_y) = get_bounds(&bp);
 
     let width = (max_x - min_x).to_u32().unwrap() + 1;
     let height = (max_y - min_y).to_u32().unwrap() + 1;
-    let mut image = ImageBuffer::new(width * TILE_SIZE, height * TILE_SIZE);
+    let mut image = ImageBuffer::new(width, height);
 
-    let tile_image = image::open(TILE_IMAGE_PATH).unwrap();
-    let entity_image = image::open(ENTITY_IMAGE_PATH).unwrap();
+    let mut positions = std::collections::HashMap::new();
 
-    let mut tile_positions = std::collections::HashSet::new();
-    let mut entity_positions = std::collections::HashMap::new();
+    // let mut tile_positions = std::collections::HashSet::new();
+    // let mut entity_positions = std::collections::HashMap::new();
 
     for tile in bp.tiles.iter() {
         let x = tile.position.x;
         let y = tile.position.y;
-        tile_positions.insert((x, y));
+        positions.insert((x, y), BlueprintPosition::Tile);
+        // tile_positions.insert((x, y));
     }
 
     for entity in bp.entities.iter() {
         let x = entity.position.x;
         let y = entity.position.y;
-        entity_positions.insert((x, y), &entity.name);
+        positions.insert((x, y), BlueprintPosition::Entity);
+        // entity_positions.insert((x, y), &entity.name);
     }
 
-    let progress_bar = indicatif::ProgressBar::new((width * height) as u64);
-    progress_bar.set_message("Creating image");
+    // let progress_bar = indicatif::ProgressBar::new((width * height) as u64);
+    // progress_bar.set_message("Creating image");
 
     for y in 0..height {
         for x in 0..width {
-            let image_x = x * TILE_SIZE;
-            let image_y = y * TILE_SIZE;
+            // let image_x = x * TILE_SIZE;
+            // let image_y = y * TILE_SIZE;
 
-            if tile_positions.contains(&(R64::new(x as f64), R64::new(y as f64))) {
-                image.copy_from(&tile_image, image_x, image_y).unwrap();
+            let position = positions.get(&(R64::new(x as f64), R64::new(y as f64)));
+            if let Some(position) = position {
+                match position {
+                    BlueprintPosition::Tile => {
+                        // image.put_pixel(x, y, Rgba([0, 0, 0, 255]));
+                        image.put_pixel(x, y, Rgba([58, 53, 46, 255]));
+                        // image.copy_from(&tile_image, image_x, image_y).unwrap();
+                    }
+                    BlueprintPosition::Entity => {
+                        // image.put_pixel(x, y, Rgba([255, 0, 0, 255]));
+                        image.put_pixel(x, y, Rgba([205, 203, 207, 255]));
+                        // image.copy_from(&entity_image, image_x, image_y).unwrap();
+                    }
+                }
             }
 
-            if entity_positions.contains_key(&(R64::new(x as f64), R64::new(y as f64))) {
-                image.copy_from(&entity_image, image_x, image_y).unwrap();
-            }
+            // if tile_positions.contains(&(R64::new(x as f64), R64::new(y as f64))) {
+            //     image.copy_from(&tile_image, image_x, image_y).unwrap();
+            // }
 
-            progress_bar.inc(1);
+            // if entity_positions.contains_key(&(R64::new(x as f64), R64::new(y as f64))) {
+            //     image.copy_from(&entity_image, image_x, image_y).unwrap();
+            // }
+
+            // progress_bar.inc(1);
         }
     }
 
-    progress_bar.finish();
+    // progress_bar.finish();
 
     DynamicImage::ImageRgba8(image)
+
+    // png
 }
 
 fn get_bounds(bp: &Blueprint) -> (R64, R64, R64, R64) {
