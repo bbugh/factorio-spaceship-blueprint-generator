@@ -15,9 +15,6 @@ use serde::{Deserialize, Serialize};
 use tsify::Tsify;
 
 const MINIMUM_ALPHA: u8 = 1;
-const TILE_SIZE: u32 = 16;
-const TILE_IMAGE_PATH: &str = "spaceship-floor-16.png";
-const ENTITY_IMAGE_PATH: &str = "spaceship-wall-16.png";
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global allocator.
 #[cfg(feature = "wee_alloc")]
@@ -98,12 +95,13 @@ pub struct BlueprintResult {
     pub image: BlueprintImage,
 }
 
+// HACK: This is a workaround for wasm_bindgen not supporting custom return types
 #[wasm_bindgen(typescript_custom_section)]
 const TS_APPEND_CONTENT: &'static str = r#"
 export function getBlueprintFromImage(image_data: Uint8Array): BlueprintResult;
 "#;
 
-#[wasm_bindgen(js_name = getBlueprintFromImage)]
+#[wasm_bindgen(js_name = getBlueprintFromImage, skip_typescript)]
 pub fn get_blueprint_from_image(image_data: &[u8]) -> Result<JsValue, JsValue> {
     let image = match image::load_from_memory(image_data) {
         Ok(img) => img,
