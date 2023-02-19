@@ -8,6 +8,10 @@
   let floorTile = "se-spaceship-floor";
   let wallTile = "se-spaceship-wall";
 
+  function copyBlueprintToClipboard() {
+    navigator.clipboard.writeText(blueprint);
+  }
+
   document.addEventListener('paste', async (event) => {
     error = '';
     const items = event.clipboardData.items;
@@ -16,13 +20,19 @@
         const blob = items[i].getAsFile();
         const arrayBuffer = await blob.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
+
+        (document.getElementById('inputImg') as HTMLImageElement).src = URL.createObjectURL(blob);
         try {
           const result = getBlueprintFromImage(uint8Array, alpha, floorTile, wallTile);
           blueprint = result.base64
           console.log(blueprint);
 
-          const canvas = document.createElement('canvas');
+          const canvas = document.getElementById('outputCanvas') as HTMLCanvasElement;
           const ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          // const canvas = document.createElement('canvas');
+          // const ctx = canvas.getContext('2d');
           canvas.width = result.image.width;
           canvas.height = result.image.height;
 
@@ -36,7 +46,7 @@
           ctx.putImageData(imageData, 0, 0);
 
           // Add the canvas to the page
-          document.body.appendChild(canvas);
+          // document.body.appendChild(canvas);
 
 
         } catch (e) {
@@ -91,9 +101,24 @@ let fileinput;
   <div class="error">{error}</div>
   <input style="display:none" type="file" accept=".jpg, .jpeg, .png" on:change={(e)=>onFileSelected(e)} bind:this={fileinput} >
 
-  <button on:click={() => readImageFromClipboard()}>Read Image</button>
+  <div style="display: flex; flex-direction: row;">
+    <div style="display: flex; flex-direction: column;">
+      <h1>Input</h1>
+      <img id="inputImg" src="" alt="what">
+    </div>
+    <div style="display: flex; flex-direction: column;">
+      <h1>Output</h1>
+      <canvas id="outputCanvas"></canvas>
+    </div>
+  </div>
+
+  <input disabled={!blueprint} type="text" readonly bind:value={blueprint} />
+
+  <button disabled={!blueprint} on:click={() => copyBlueprintToClipboard()}>Copy Blueprint String</button>
+
+  <!-- <button on:click={() => readImageFromClipboard()}>Read Image</button>
   <br />
-  <textarea class="blueprint-text" bind:value={blueprint} />
+  <textarea class="blueprint-text" bind:value={blueprint} /> -->
 
 
   <!-- {#if avatar}
@@ -108,13 +133,13 @@ let fileinput;
 </main>
 
 <style>
-  .blueprint-text {
+  /* .blueprint-text {
     border: 1px solid darkgray;
     font-family: monospace;
     border-radius: 0.15em;
     width: 750px;
     height: 250px;
-  }
+  } */
   .error {
     color: red;
   }
