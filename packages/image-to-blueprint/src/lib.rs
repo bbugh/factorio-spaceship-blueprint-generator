@@ -93,15 +93,24 @@ pub struct BlueprintResult {
     pub image: BlueprintImage,
 }
 
+// #[wasm_bindgen]
+// extern "C" {
+//     // Use `js_namespace` here to bind `console.log(..)` instead of just
+//     // `log(..)`
+//     #[wasm_bindgen(js_namespace = console)]
+//     fn log(s: &str);
+// }
+
 // HACK: This is a workaround for wasm_bindgen not supporting custom return types
 #[wasm_bindgen(typescript_custom_section)]
 const TS_APPEND_CONTENT: &'static str = r#"
-export function getBlueprintFromImage(image_data: Uint8Array, max_alpha: number, floor_tile_name: string, wall_tile_name: string): BlueprintResult;
+export function getBlueprintFromImage(image_data: Uint8Array, max_dimension: number, max_alpha: number, floor_tile_name: string, wall_tile_name: string): BlueprintResult;
 "#;
 
 #[wasm_bindgen(js_name = getBlueprintFromImage, skip_typescript)]
 pub fn get_blueprint_from_image(
     image_data: &[u8],
+    max_dimension: u32,
     max_alpha: u8,
     floor_tile_name: &str,
     wall_tile_name: &str,
@@ -110,6 +119,17 @@ pub fn get_blueprint_from_image(
         Ok(img) => img,
         Err(e) => return Err(JsError::new(&format!("{}", e)).into()),
     };
+
+    let max_dimension = max_dimension.clamp(2, 500);
+
+    let image = image.resize(
+        max_dimension,
+        max_dimension,
+        image::imageops::FilterType::Nearest,
+    );
+
+    // let (width, height) = image.dimensions();
+    // log(&format!("width: {}, height: {}", width, height));
 
     let blueprint =
         match create_blueprint_from_image(image, max_alpha, floor_tile_name, wall_tile_name) {

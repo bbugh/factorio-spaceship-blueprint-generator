@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getBlueprintFromImage } from 'image-to-blueprint';
-  import { readImageFromClipboard } from './utils';
+  // import { readImageFromClipboard } from './utils';
 
   let blueprint = '';
   let error = '';
@@ -8,11 +8,16 @@
   let floorTile = "se-spaceship-floor";
   let wallTile = "se-spaceship-wall";
 
+  let maxSize = 200;
+
+  let loading = 'none';
+
   function copyBlueprintToClipboard() {
     navigator.clipboard.writeText(blueprint);
   }
 
   document.addEventListener('paste', async (event) => {
+    loading = 'block';
     error = '';
     const items = event.clipboardData.items;
     for (let i = 0; i < items.length; i++) {
@@ -23,7 +28,7 @@
 
         (document.getElementById('inputImg') as HTMLImageElement).src = URL.createObjectURL(blob);
         try {
-          const result = getBlueprintFromImage(uint8Array, alpha, floorTile, wallTile);
+          const result = getBlueprintFromImage(uint8Array, maxSize, alpha, floorTile, wallTile);
           blueprint = result.base64
           console.log(blueprint);
 
@@ -48,7 +53,7 @@
           // Add the canvas to the page
           // document.body.appendChild(canvas);
 
-
+          loading = 'none';
         } catch (e) {
           error = `ERROR: ${e.message}`;
         }
@@ -71,6 +76,7 @@ let fileinput;
 </script>
 
 <main>
+  <h1 id="loading" style="color: red; display: {loading};">Loading</h1>
 
   <div>
     <h1>Options</h1>
@@ -79,6 +85,12 @@ let fileinput;
       <label for="alpha">Alpha</label>
       <input type="range" min="1" max="254" class="slider" bind:value={alpha}>
       <div>{alpha}</div>
+    </div>
+
+    <div style="display: flex; flex-direction: row;">
+      <label for="maxSize">MaxSize</label>
+      <input type="range" min="10" max="500" class="slider" bind:value={maxSize}>
+      <div>{maxSize}</div>
     </div>
 
     <div style="display: flex; flex-direction: row;">
@@ -104,7 +116,7 @@ let fileinput;
   <div style="display: flex; flex-direction: row;">
     <div style="display: flex; flex-direction: column;">
       <h1>Input</h1>
-      <img id="inputImg" src="" alt="what">
+      <img id="inputImg" src="" alt="what" style="max-width: {maxSize}px; max-height: {maxSize}px">
     </div>
     <div style="display: flex; flex-direction: column;">
       <h1>Output</h1>
