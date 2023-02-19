@@ -15,6 +15,7 @@
         const uint8Array = new Uint8Array(arrayBuffer);
         try {
           blueprint = getBlueprintFromImage(uint8Array);
+          console.log(blueprint);
         } catch (e) {
           error = `ERROR: ${e.message}`;
         }
