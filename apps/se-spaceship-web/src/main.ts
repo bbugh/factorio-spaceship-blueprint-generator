@@ -1,22 +1,20 @@
-import './app.css'
-import App from './App.svelte'
+import "./app.css";
+import App from "./App.svelte";
 
-import init from 'image-to-blueprint'
+import init from "image-to-blueprint";
 
 const load = async () => {
-  const startTime = performance.now()
-  await init()
-  const endTime = performance.now()
-  console.debug(`Call to wasm init took ${endTime - startTime} milliseconds`)
+  const startTime = performance.now();
+  await init();
+  const endTime = performance.now();
+  console.debug(`Call to wasm init took ${endTime - startTime} milliseconds`);
 
-  const app = new App({
-    target: document.getElementById('app')
-  })
-}
+  new App({
+    target: document.getElementById("app"),
+  });
+};
 
-
-load()
-
+await load();
 
 // const app = new App({
 //   target: document.getElementById('app'),

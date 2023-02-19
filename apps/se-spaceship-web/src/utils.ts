@@ -10,7 +10,6 @@
 
 // import { getImageDimensions } from 'image-to-blueprint'
 
-
 /// Reads an image from the clipboard and converts it into a uint8array.
 // export async function readImageFromClipboard(): Promise<Uint8Array> {
 //   const clipboardItems = await navigator.clipboard.read()
@@ -38,7 +37,7 @@
 export async function readImageFromClipboard(): Promise<Uint8Array> {
   const clipboardItems = await navigator.clipboard.read();
   for (const clipboardItem of clipboardItems) {
-    const type = await clipboardItem.types.find(type => type.startsWith('image/'))
+    const type = clipboardItem.types.find((type) => type.startsWith("image/"));
     if (type) {
       const blob = await clipboardItem.getType(type);
       const arrayBuffer = await blob.arrayBuffer();
@@ -46,7 +45,7 @@ export async function readImageFromClipboard(): Promise<Uint8Array> {
       return uint8Array;
     }
   }
-  throw new Error('No image found in clipboard');
+  throw new Error("No image found in clipboard");
 }
 
 // /// Converts an image into a base64 blueprint string.
