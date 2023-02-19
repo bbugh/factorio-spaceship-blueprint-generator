@@ -24,6 +24,10 @@ console_error_panic_hook = { version = "0.1.6", optional = true }
 # allocator, however.
 wee_alloc = { version = "0.4.5", optional = true }
 image = "0.24.5"
+factorio-blueprint = "0.3.0"
+noisy_float = "0.1.15"
+num-traits = "0.2.15"
+indicatif = "0.17.3"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"

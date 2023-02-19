@@ -1,21 +1,52 @@
 <script lang="ts">
-  import { helloWorld, upperCase } from 'image-to-blueprint';
+  import { getBlueprintFromImage } from 'image-to-blueprint';
   import { readImageFromClipboard } from './utils';
-// 	let  avatar, fileinput;
 
-// 	const onFileSelected =(e)=>{
-//   let image = e.target.files[0];
-//             let reader = new FileReader();
-//             reader.readAsDataURL(image);
-//             reader.onload = e => {
-//                  avatar = e.target.result
-//             };
-// }
+  let blueprint = '';
+  let error = '';
+
+  document.addEventListener('paste', async (event) => {
+    error = '';
+    const items = event.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf("image") !== -1) {
+        const blob = items[i].getAsFile();
+        const arrayBuffer = await blob.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+        try {
+          blueprint = getBlueprintFromImage(uint8Array);
+        } catch (e) {
+          error = `ERROR: ${e.message}`;
+        }
+      }
+    }
+  });
+
+// 	let  avatar, fileinput;
+let fileinput;
+
+	const onFileSelected =(e)=>{
+  let image = e.target.files[0];
+            let reader = new FileReader();
+            reader.readAsDataURL(image);
+            reader.onload = e => {
+              console.log(e);
+                //  avatar = e.target.result
+            };
+}
 </script>
 
 <main>
-  <button on:click={() => helloWorld(upperCase('banana'))}>Greet</button>
+
+  <div class="chan" on:click={()=>{fileinput.click();}} on:keydown={()=>{fileinput.click();}} >Choose Image</div>
+  <div class="error">{error}</div>
+  <input style="display:none" type="file" accept=".jpg, .jpeg, .png" on:change={(e)=>onFileSelected(e)} bind:this={fileinput} >
+
   <button on:click={() => readImageFromClipboard()}>Read Image</button>
+  <br />
+  <textarea class="blueprint-text" bind:value={blueprint} />
+
+
   <!-- {#if avatar}
   <img class="avatar" src="{avatar}" alt="d" />
   {:else}
@@ -28,6 +59,16 @@
 </main>
 
 <style>
+  .blueprint-text {
+    border: 1px solid darkgray;
+    font-family: monospace;
+    border-radius: 0.15em;
+    width: 750px;
+    height: 250px;
+  }
+  .error {
+    color: red;
+  }
   /* .logo {
     height: 6em;
     padding: 1.5em;
