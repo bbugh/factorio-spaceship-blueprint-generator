@@ -49,16 +49,14 @@
 
           // Draw the image data onto the canvas
           ctx.putImageData(imageData, 0, 0);
-
-          // Add the canvas to the page
-          // document.body.appendChild(canvas);
-
-          loading = 'none';
         } catch (e) {
           error = `ERROR: ${e.message}`;
+        } finally {
+          loading = 'none';
         }
       }
     }
+    loading = 'none';
   });
 
 // 	let  avatar, fileinput;
