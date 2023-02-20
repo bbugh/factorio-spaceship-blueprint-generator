@@ -206,7 +206,7 @@
   .option-row {
     display: flex;
     flex-direction: row;
-    justify-content: start;
+    justify-content: flex-start;
     text-align: left;
     margin-bottom: 5px;
   }
