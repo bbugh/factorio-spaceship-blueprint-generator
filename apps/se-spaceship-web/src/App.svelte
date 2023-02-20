@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Spinner from "./Spinner.svelte";
   import { getBlueprintFromImage } from "image-to-blueprint";
   // import { readImageFromClipboard } from './utils';
 
@@ -99,32 +100,33 @@
   <h1 id="loading" style="color: red; display: {loading};">Loading</h1>
 
   <div>
-    <h1>Options</h1>
+    <h2>Options</h2>
 
-    <div style="display: flex; flex-direction: row;">
-      <label for="alpha">Alpha</label>
+    <div class="option-row">
+      <label for="alpha">Alpha Threshold</label>
       <input type="range" min="1" max="254" class="slider" bind:value={alpha} />
       <div>{alpha}</div>
     </div>
 
-    <div style="display: flex; flex-direction: row;">
+    <div class="option-row">
       <label for="maxSize">MaxSize</label>
       <input
         type="range"
         min="10"
         max="500"
+        step="10"
         class="slider"
         bind:value={maxSize}
       />
-      <div>{maxSize}</div>
+      <div>{maxSize}px</div>
     </div>
 
-    <div style="display: flex; flex-direction: row;">
+    <div class="option-row">
       <label for="floorTile">Floor Tile</label>
       <input type="text" bind:value={floorTile} />
     </div>
 
-    <div style="display: flex; flex-direction: row;">
+    <div class="option-row">
       <label for="wallTile">Wall Tile</label>
       <input type="text" bind:value={wallTile} />
     </div>
@@ -157,24 +159,33 @@
 
   <div style="display: flex; flex-direction: row;">
     <div style="display: flex; flex-direction: column;">
-      <h1>Input</h1>
+      <h2>Input</h2>
       <img
         id="inputImg"
-        src=""
-        alt="what"
+        src="/images/200x200.png"
+        alt="input"
         style="max-width: {maxSize}px; max-height: {maxSize}px"
       />
     </div>
     <div style="display: flex; flex-direction: column;">
-      <h1>Output</h1>
+      <h2>Preview</h2>
+      <div
+        style="justify-content: center; align-items: center; width: 100%; height: 100%;"
+        style:display={loading}
+      >
+        <Spinner />
+      </div>
       <canvas id="outputCanvas" />
     </div>
   </div>
 
-  <input disabled={!blueprint} type="text" readonly bind:value={blueprint} />
+  <!-- <input disabled={!blueprint} type="text" readonly bind:value={blueprint} /> -->
 
-  <button disabled={!blueprint} on:click={() => copyBlueprintToClipboard()}
-    >Copy Blueprint String</button
+  <button
+    class="btn-copy-blueprint"
+    disabled={!blueprint}
+    on:click={() => copyBlueprintToClipboard()}
+    ><img src="/images/blueprint-icon.png" alt="icon" /> Copy Blueprint String</button
   >
 
   <!-- <button on:click={() => readImageFromClipboard()}>Read Image</button>
@@ -192,6 +203,28 @@
 </main>
 
 <style>
+  .option-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    text-align: left;
+    margin-bottom: 5px;
+  }
+
+  .option-row label {
+    min-width: 100px;
+  }
+
+  .btn-copy-blueprint {
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .btn-copy-blueprint img {
+    width: 1em;
+    height: 1em;
+  }
   /* .blueprint-text {
     border: 1px solid darkgray;
     font-family: monospace;
