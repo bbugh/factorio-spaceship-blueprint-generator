@@ -122,14 +122,16 @@ pub fn get_blueprint_from_image(
 
     let max_dimension = max_dimension.clamp(2, 500);
 
-    let image = image.resize(
-        max_dimension,
-        max_dimension,
-        image::imageops::FilterType::Nearest,
-    );
-
-    // let (width, height) = image.dimensions();
-    // log(&format!("width: {}, height: {}", width, height));
+    let (width, height) = image.dimensions();
+    let image = if width > max_dimension || height > max_dimension {
+        image.resize(
+            max_dimension,
+            max_dimension,
+            image::imageops::FilterType::Nearest,
+        )
+    } else {
+        image
+    };
 
     let blueprint =
         match create_blueprint_from_image(image, max_alpha, floor_tile_name, wall_tile_name) {
