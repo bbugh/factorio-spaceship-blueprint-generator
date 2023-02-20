@@ -14,10 +14,4 @@ const load = async () => {
   });
 };
 
-await load();
-
-// const app = new App({
-//   target: document.getElementById('app'),
-// })
-
-// export default app
+void load();
