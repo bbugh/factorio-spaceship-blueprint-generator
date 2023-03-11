@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { onMount, onDestroy } from "svelte";
+
   import Dropzone from "svelte-file-dropzone";
   // import Spinner from "./Spinner.svelte";
   import UIPanel from "./UIPanel.svelte";
@@ -21,7 +23,6 @@
 
   let queued = false;
   let generating = false;
-  let file: File = null;
   let inputSrc: string = null;
   let sourceWidth = 0;
   let sourceHeight = 0;
@@ -43,7 +44,6 @@
 
     queued = false;
     generating = false;
-    file = null;
     inputSrc = null;
     sourceWidth = 0;
     sourceHeight = 0;
@@ -78,36 +78,42 @@
       return;
     }
 
-    // for (const file in acceptedFiles) {
-    for (let i = 0; i < acceptedFiles.length; i++) {
-      const blob = acceptedFiles[i];
-      file = blob;
-
-      inputSrc = URL.createObjectURL(blob);
+    if (acceptedFiles.length === 0) {
+      alert("No files selected!");
+      return;
     }
 
-    // if (inputSrc) {
-    //   console.log("inputSrc!");
-    //   void generate();
-    // }
+    if (acceptedFiles.length > 1) {
+      alert("Only one file can be processed at a time!");
+      return;
+    }
 
-    // console.log(acceptedFiles);
-    // files.accepted = [...files.accepted, ...acceptedFiles];
-    // files.rejected = [...files.rejected, ...fileRejections];
+    loadFile(acceptedFiles[0]);
   }
 
-  async function onSourceImageLoaded(e: Event) {
+  function loadFile(fileload: File) {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const arrayBuffer = reader.result as ArrayBuffer;
+      imageBuffer = new Uint8Array(arrayBuffer);
+
+      // Do this after the image buffer is set so generate doesn't run before the image is loaded
+      inputSrc = URL.createObjectURL(fileload);
+    };
+    reader.readAsArrayBuffer(fileload);
+  }
+
+  // Needs to happen after <img> has loaded the source so we can get the natural image dimensions
+  function onSourceImageLoaded(e: Event) {
     const source = e.target as HTMLImageElement;
 
-    maxSizeMax = Math.max(source.width, source.height);
+    sourceWidth = source.naturalWidth;
+    sourceHeight = source.naturalHeight;
 
-    sourceWidth = source.width;
-    sourceHeight = source.height;
+    maxSizeMax = Math.max(sourceWidth, sourceHeight);
 
-    const arrayBuffer = await file.arrayBuffer();
-    imageBuffer = new Uint8Array(arrayBuffer);
-
-    generate();
+    onActivity();
   }
 
   function onActivity() {
@@ -121,8 +127,20 @@
   }
 
   function generate() {
-    console.debug("generate", generating, !!inputSrc);
-    if (generating || !inputSrc) return;
+    if (generating) {
+      console.debug("Already generating!");
+      return;
+    }
+
+    if (!inputSrc) {
+      error = "No image selected!";
+      return;
+    }
+
+    if (imageBuffer === null) {
+      error = "Image not loaded!";
+      return;
+    }
 
     generating = true;
     error = "";
@@ -150,9 +168,6 @@
 
       outputWidth = result.image.width;
       outputHeight = result.image.height;
-
-      // const canvas = document.createElement('canvas');
-      // const ctx = canvas.getContext('2d');
 
       // Canvas size must be set to the output image size
       canvas.width = result.image.width;
@@ -182,6 +197,7 @@
         `Wrote image data to canvas in ${performance.now() - startTime}ms`
       );
     } catch (e) {
+      console.error(e);
       error = `ERROR: ${(e as Error).message}`;
     } finally {
       generating = false;
@@ -192,64 +208,23 @@
     await navigator.clipboard.writeText(blueprint);
   }
 
-  async function onPaste(event: ClipboardEvent) {
-    generating = true;
-    error = "";
+  function onPaste(event: ClipboardEvent) {
     const items = event.clipboardData.items;
+
     for (let i = 0; i < items.length; i++) {
       if (items[i].type.indexOf("image") !== -1) {
-        const blob = items[i].getAsFile();
-        const arrayBuffer = await blob.arrayBuffer();
-        const uint8Array = new Uint8Array(arrayBuffer);
-
-        (document.getElementById("inputImg") as HTMLImageElement).src =
-          URL.createObjectURL(blob);
-        try {
-          const result = getBlueprintFromImage(
-            uint8Array,
-            maxSize,
-            alpha,
-            floorTile,
-            wallTile
-          );
-          blueprint = result.base64;
-          console.log(blueprint);
-
-          const canvas = document.getElementById(
-            "outputCanvas"
-          ) as HTMLCanvasElement;
-          const ctx = canvas.getContext("2d");
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-          // const canvas = document.createElement('canvas');
-          // const ctx = canvas.getContext('2d');
-          canvas.width = result.image.width;
-          canvas.height = result.image.height;
-
-          // Create a Uint8Array from the image data
-          const imgData = new Uint8ClampedArray(result.image.data);
-
-          // Create a new ImageData object
-          const imageData = new ImageData(
-            imgData,
-            result.image.width,
-            result.image.height
-          );
-
-          // Draw the image data onto the canvas
-          ctx.putImageData(imageData, 0, 0);
-        } catch (e) {
-          error = `ERROR: ${(e as Error).message}`;
-        } finally {
-          generating = false;
-        }
+        loadFile(items[i].getAsFile());
+        break;
       }
     }
-    generating = false;
   }
 
-  document.addEventListener("paste", (e) => {
-    void onPaste(e);
+  onMount(() => {
+    window.addEventListener("paste", onPaste);
+  });
+
+  onDestroy(() => {
+    window.removeEventListener("paste", onPaste);
   });
 
   // 	let  avatar, fileinput;
@@ -300,9 +275,9 @@
         <button
           class="btn btn-icon btn-danger"
           on:click={() => reset()}
-          disabled={!file}
+          disabled={!inputSrc}
         >
-          <img src={file ? resetIconBlack : resetIconWhite} alt="Reset" />
+          <img src={inputSrc ? resetIconBlack : resetIconWhite} alt="Reset" />
         </button>
       </div>
       <InputGroup>
@@ -345,14 +320,14 @@
         </SettingRow>
       </InputGroup>
       <InputGroup title="Source">
-        {#if file}
+        {#if inputSrc}
           <div class="flex flex-col items-center justify-center">
             <img
               id="inputImg"
               src={inputSrc}
               alt="Input source"
               class="max-w-full"
-              on:load={(e) => void onSourceImageLoaded(e)}
+              on:load={onSourceImageLoaded}
             />
             <div>{sourceWidth}&times;{sourceHeight}</div>
           </div>
@@ -388,13 +363,13 @@
             min={10}
             max={maxSizeMax}
             step="10"
-            disabled={!file}
+            disabled={!inputSrc}
             bind:value={maxSize}
             on:input={onActivity}
           />
         </SettingRow>
       </InputGroup>
-      {#if file}
+      {#if inputSrc}
         <InputGroup title="Blueprint Preview">
           <div class="w-full text-center">
             <canvas id="outputCanvas" class="mx-auto h-0 w-0 max-w-full" />
