@@ -1,64 +1,31 @@
 <script lang="ts">
-  import { onMount, onDestroy } from "svelte";
+  import { onDestroy, onMount } from "svelte";
+  import { generate, loadFile, maxSizeMax, resetStore, store } from "./store";
 
   import Dropzone from "svelte-file-dropzone";
-  // import Spinner from "./Spinner.svelte";
-  import UIPanel from "./UIPanel.svelte";
-  import { getBlueprintFromImage } from "image-to-blueprint";
+  import InputGroup from "./InputGroup.svelte";
   import SettingRow from "./SettingRow.svelte";
   import SettingRowSlider from "./SettingRowSlider.svelte";
   import SettingRowTextInput from "./SettingRowTextInput.svelte";
+  import UIPanel from "./UIPanel.svelte";
+
   import resetIconBlack from "./assets/reset-icon-black.png";
   import resetIconWhite from "./assets/reset-icon-white.png";
-  import InputGroup from "./InputGroup.svelte";
 
-  let blueprint = "";
-  let error = "";
   let alpha = 1;
+  let error = "";
   let floorTile = "se-spaceship-floor";
+  let maxSize = 25;
+  let queued = false;
   let wallTile = "se-spaceship-wall";
 
-  let maxSize = 25;
-  let maxSizeMax = 100;
-
-  let queued = false;
-  let generating = false;
-  let inputSrc: string = null;
-  let sourceWidth = 0;
-  let sourceHeight = 0;
-  let outputWidth = 0;
-  let outputHeight = 0;
-  let outputTileCount = 0;
-  let outputEntityCount = 0;
-
-  let imageBuffer: Uint8Array = null;
+  let canvas: HTMLCanvasElement;
+  let ctx: CanvasRenderingContext2D;
 
   function reset() {
-    blueprint = "";
-    error = "";
-    alpha = 1;
-    floorTile = "se-spaceship-floor";
-    wallTile = "se-spaceship-wall";
+    resetStore();
 
-    maxSize = 25;
-
-    queued = false;
-    generating = false;
-    inputSrc = null;
-    sourceWidth = 0;
-    sourceHeight = 0;
-    outputWidth = 0;
-    outputHeight = 0;
-    outputTileCount = 0;
-    outputEntityCount = 0;
-
-    imageBuffer = null;
-
-    const canvas = document.getElementById("outputCanvas") as HTMLCanvasElement;
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    canvas.style.width = `0`;
-    canvas.style.height = `0`;
+    refreshCanvas();
   }
 
   function handleFilesSelect(
@@ -68,7 +35,6 @@
       event: MouseEvent;
     }>
   ) {
-    console.table(e);
     const { acceptedFiles, fileRejections } = e.detail;
 
     if (fileRejections.length > 0) {
@@ -91,128 +57,69 @@
     loadFile(acceptedFiles[0]);
   }
 
-  function loadFile(fileload: File) {
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      const arrayBuffer = reader.result as ArrayBuffer;
-      imageBuffer = new Uint8Array(arrayBuffer);
-
-      // Do this after the image buffer is set so generate doesn't run before the image is loaded
-      inputSrc = URL.createObjectURL(fileload);
-    };
-    reader.readAsArrayBuffer(fileload);
-  }
-
   // Needs to happen after <img> has loaded the source so we can get the natural image dimensions
   function onSourceImageLoaded(e: Event) {
     const source = e.target as HTMLImageElement;
 
-    sourceWidth = source.naturalWidth;
-    sourceHeight = source.naturalHeight;
-
-    maxSizeMax = Math.max(sourceWidth, sourceHeight);
+    $store.sourceWidth = source.naturalWidth;
+    $store.sourceHeight = source.naturalHeight;
 
     onActivity();
+  }
+
+  function refreshCanvas() {
+    if (!$store.imageData) {
+      return;
+    }
+
+    // This can't be done onMount because the canvas doesn't exist in the DOM
+    // yet, and it is temporarily removed from the DOM when the image is loaded
+    ctx = canvas.getContext("2d");
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const { imageData, sourceWidth, sourceHeight } = $store;
+
+    canvas.width = imageData.width;
+    canvas.height = imageData.height;
+
+    canvas.style.width = `${sourceWidth}px`;
+    canvas.style.height = `${sourceHeight}px`;
+
+    ctx.putImageData(imageData, 0, 0, 0, 0, imageData.width, imageData.height);
   }
 
   function onActivity() {
     if (!queued) {
       queued = true;
       requestIdleCallback(() => {
-        generate();
+        try {
+          error = "";
+          generate(maxSize, alpha, floorTile, wallTile);
+          refreshCanvas();
+        } catch (e) {
+          error = (e as Error).message.toString();
+        }
+
         queued = false;
       });
     }
   }
 
-  function generate() {
-    if (generating) {
-      console.debug("Already generating!");
-      return;
-    }
-
-    if (!inputSrc) {
-      error = "No image selected!";
-      return;
-    }
-
-    if (imageBuffer === null) {
-      error = "Image not loaded!";
-      return;
-    }
-
-    generating = true;
-    error = "";
-    try {
-      const startTime = performance.now();
-      const result = getBlueprintFromImage(
-        imageBuffer,
-        maxSize,
-        alpha,
-        floorTile,
-        wallTile
-      );
-      blueprint = result.base64;
-      outputTileCount = result.image.tileCount;
-      outputEntityCount = result.image.entityCount;
-      console.debug(
-        `Generated blueprint in ${performance.now() - startTime}ms`
-      );
-
-      const canvas = document.getElementById(
-        "outputCanvas"
-      ) as HTMLCanvasElement;
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      outputWidth = result.image.width;
-      outputHeight = result.image.height;
-
-      // Canvas size must be set to the output image size
-      canvas.width = result.image.width;
-      canvas.height = result.image.height;
-
-      // Set the actual canvas display width
-      canvas.style.width = `${sourceWidth}px`;
-      canvas.style.height = `${sourceHeight}px`;
-      canvas.style.imageRendering = "pixelated";
-
-      console.debug(`Set up Canvas in ${performance.now() - startTime}ms`);
-
-      // Create a Uint8Array from the image data
-      const imgData = new Uint8ClampedArray(result.image.data);
-
-      // Create a new ImageData object
-      const imageData = new ImageData(
-        imgData,
-        result.image.width,
-        result.image.height
-      );
-
-      // Draw the image data onto the canvas
-      ctx.putImageData(imageData, 0, 0);
-
-      console.debug(
-        `Wrote image data to canvas in ${performance.now() - startTime}ms`
-      );
-    } catch (e) {
-      console.error(e);
-      error = `ERROR: ${(e as Error).message}`;
-    } finally {
-      generating = false;
-    }
-  }
-
   async function copyBlueprintToClipboard() {
-    await navigator.clipboard.writeText(blueprint);
+    await navigator.clipboard.writeText($store.blueprint);
   }
 
   function onPaste(event: ClipboardEvent) {
     const items = event.clipboardData.items;
 
     for (let i = 0; i < items.length; i++) {
-      if (items[i].type.indexOf("image") !== -1) {
+      if (
+        items[i].type === "image/gif" ||
+        items[i].type === "image/jpeg" ||
+        items[i].type === "image/png" ||
+        items[i].type === "image/webp"
+      ) {
         loadFile(items[i].getAsFile());
         break;
       }
@@ -226,24 +133,6 @@
   onDestroy(() => {
     window.removeEventListener("paste", onPaste);
   });
-
-  // 	let  avatar, fileinput;
-  // let fileinput = document.getElementById("fileinput") as HTMLInputElement;
-
-  // const onFileSelected = (event: Event) => {
-  //   const target = event.target as HTMLInputElement;
-
-  //   if (target.files && target.files.length) {
-  //     // const file = target.files[0];
-  //     let image = target.files[0];
-  //     let reader = new FileReader();
-  //     reader.readAsDataURL(image);
-  //     reader.onload = (e) => {
-  //       console.log(e);
-  //       //  avatar = e.target.result
-  //     };
-  //   }
-  // };
 </script>
 
 <div class="mb-4 flex flex-col items-center justify-between md:flex-row">
@@ -275,9 +164,12 @@
         <button
           class="btn btn-icon btn-danger"
           on:click={() => reset()}
-          disabled={!inputSrc}
+          disabled={!$store.inputSrc}
         >
-          <img src={inputSrc ? resetIconBlack : resetIconWhite} alt="Reset" />
+          <img
+            src={$store.inputSrc ? resetIconBlack : resetIconWhite}
+            alt="Reset"
+          />
         </button>
       </div>
       <InputGroup>
@@ -320,16 +212,16 @@
         </SettingRow>
       </InputGroup>
       <InputGroup title="Source">
-        {#if inputSrc}
+        {#if $store.inputSrc}
           <div class="flex flex-col items-center justify-center">
             <img
               id="inputImg"
-              src={inputSrc}
+              src={$store.inputSrc}
               alt="Input source"
               class="max-w-full"
               on:load={onSourceImageLoaded}
             />
-            <div>{sourceWidth}&times;{sourceHeight}</div>
+            <div>{$store.sourceWidth}&times;{$store.sourceHeight}</div>
           </div>
         {:else}
           <div class="w-full p-2">
@@ -361,19 +253,24 @@
           <SettingRowSlider
             id={inputId}
             min={10}
-            max={maxSizeMax}
+            max={$maxSizeMax}
             step="10"
-            disabled={!inputSrc}
+            disabled={!$store.inputSrc}
             bind:value={maxSize}
             on:input={onActivity}
           />
         </SettingRow>
       </InputGroup>
-      {#if inputSrc}
+      {#if $store.inputSrc}
         <InputGroup title="Blueprint Preview">
           <div class="w-full text-center">
-            <canvas id="outputCanvas" class="mx-auto h-0 w-0 max-w-full" />
-            <div>{outputWidth}&times;{outputHeight}</div>
+            <canvas
+              bind:this={canvas}
+              id="outputCanvas"
+              class="pixelated mx-auto max-w-full"
+              style="width: 0px; height: 0px"
+            />
+            <div>{$store.outputWidth}&times;{$store.outputHeight}</div>
           </div>
         </InputGroup>
 
@@ -382,13 +279,13 @@
             <div class="inset-object flex w-full flex-auto justify-between p-2">
               <div>{floorTile}</div>
               <div style="text-shadow: 1px 1px 3px black; font-weight: bold">
-                {outputTileCount}
+                {$store.outputTileCount}
               </div>
             </div>
             <div class="inset-object flex w-full flex-auto justify-between p-2">
               <div>{wallTile}</div>
               <div style="text-shadow: 1px 1px 3px black; font-weight: bold">
-                {outputEntityCount}
+                {$store.outputEntityCount}
               </div>
             </div>
           </div>
@@ -397,11 +294,11 @@
       <div
         slot="bottom"
         class="flex justify-end pt-2"
-        class:hidden={!blueprint}
+        class:hidden={!$store.blueprint}
       >
         <button
           class="btn-copy-blueprint"
-          disabled={!blueprint}
+          disabled={!$store.blueprint}
           on:click={() => copyBlueprintToClipboard()}
           ><img src="/images/blueprint-icon.png" alt="icon" /> Copy Blueprint</button
         >
@@ -411,6 +308,10 @@
 </main>
 
 <style>
+  .pixelated {
+    image-rendering: pixelated;
+  }
+
   .inset-object {
     background-color: var(--factorio-panel-bg-color-dark);
     box-shadow: var(--ui-inset-shadow);
