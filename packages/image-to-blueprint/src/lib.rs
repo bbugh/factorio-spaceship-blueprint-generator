@@ -2,6 +2,7 @@ mod utils;
 
 // use image::prelude::*;
 use std::num::NonZeroUsize;
+use utils::set_panic_hook;
 use wasm_bindgen::prelude::*;
 
 use factorio_blueprint::{
@@ -18,6 +19,13 @@ use tsify::Tsify;
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
+#[wasm_bindgen(start)]
+pub fn main() {
+    set_panic_hook();
+    ()
+    // executed automatically ...
+}
 
 // #[wasm_bindgen]
 // extern "C" {
@@ -78,11 +86,14 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[derive(Tsify, Serialize, Deserialize)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
+#[serde(rename_all = "camelCase")]
 pub struct BlueprintImage {
     pub width: u32,
     pub height: u32,
     #[tsify(type = "Uint8Array")]
     pub data: Vec<u8>,
+    pub tile_count: usize,
+    pub entity_count: usize,
 }
 
 // #[derive(Serialize, Deserialize)]
@@ -139,13 +150,15 @@ pub fn get_blueprint_from_image(
             Err(e) => return Err(JsError::new(&format!("{}", e)).into()),
         };
 
-    let blueprint_image = blueprint_image_from_blueprint(&blueprint);
+    let (blueprint_image, tile_count, entity_count) = blueprint_image_from_blueprint(&blueprint);
     let (width, height) = blueprint_image.dimensions();
 
     let image_result = BlueprintImage {
         width,
         height,
         data: blueprint_image.into_bytes(),
+        tile_count,
+        entity_count,
     };
 
     let blueprint_result = BlueprintResult {
@@ -301,7 +314,7 @@ enum BlueprintPosition {
     Entity,
 }
 
-fn blueprint_image_from_blueprint(bp: &Blueprint) -> DynamicImage {
+fn blueprint_image_from_blueprint(bp: &Blueprint) -> (DynamicImage, usize, usize) {
     let (min_x, min_y, max_x, max_y) = get_bounds(&bp);
 
     let width = (max_x - min_x).to_u32().unwrap() + 1;
@@ -365,7 +378,14 @@ fn blueprint_image_from_blueprint(bp: &Blueprint) -> DynamicImage {
 
     // progress_bar.finish();
 
-    DynamicImage::ImageRgba8(image)
+    // let image = image.resize(200, 200, image::imageops::FilterType::Nearest);
+
+    // DynamicImage::ImageRgba8(image).resize(300, 300, image::imageops::FilterType::Nearest)
+    (
+        DynamicImage::ImageRgba8(image),
+        bp.tiles.len(),
+        bp.entities.len(),
+    )
 
     // png
 }

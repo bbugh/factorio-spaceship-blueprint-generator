@@ -1,0 +1,63 @@
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  width: 15rem;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  background: var(--ui-highlight-color);
+  height: 0.75rem;
+  box-shadow: var(--inset-shadow);
+  border-bottom: var(--inset-border-bottom);
+}
+
+input[type="range"]::-moz-range-track {
+  background: var(--ui-highlight-color);
+  height: 0.75rem;
+  box-shadow: var(--inset-shadow);
+  border-bottom: var(--inset-border-bottom);
+}
+
+/***** Thumb Styles *****/
+/***** Chrome, Safari, Opera, and Edge Chromium *****/
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  margin-top: -12px; /* Centers thumb on the track */
+
+  --thumb-width: 1.5rem;
+  background-image: url("/images/slider-thumb.png");
+  background-position: center;
+  background-size: cover;
+  width: var(--thumb-width);
+  height: calc(var(--thumb-width) * 0.6);
+  box-shadow: -1px -2px 3px rgba(0, 0, 0, 0.5), 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/***** Thumb Styles *****/
+/***** Firefox *****/
+input[type="range"]::-moz-range-thumb {
+  border: none; /*Removes extra border that FF applies*/
+  border-radius: 0; /*Removes default border-radius that FF applies*/
+
+
+  --thumb-width: 1.5rem;
+  background-image: url("/images/slider-thumb.png");
+  background-position: center;
+  background-size: cover;
+  width: var(--thumb-width);
+  height: calc(var(--thumb-width) * 0.6);
+  box-shadow: -1px -2px 3px rgba(0, 0, 0, 0.5), 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: goldenrod;
+  margin-top: -4px;
+} */

@@ -58,3 +58,10 @@ export async function readImageFromClipboard(): Promise<Uint8Array> {
 //     // return blueprint
 //   })
 // }
+
+export function hyphenate(str: string): string {
+  return str
+    .split(/[\s_\b]|(?=[A-Z])/)
+    .join("-")
+    .toLowerCase();
+}

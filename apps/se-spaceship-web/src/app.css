@@ -1,7 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --factorio-danger-bg-color: #FF4852;
+  --factorio-danger-bg-color-hover: #FF9598;
+  --factorio-danger-bg-color-disabled: #5F1A1D;
+
+  --factorio-panel-title-font-color: #e8d7bc;
+
+  --factorio-panel-bg-color-dark: #313131;
+
+  --ui-highlight-color: #FCA000;
+  --ui-button-color: #34B958;
+  --ui-button-disabled-color: #002C00;
+  --ui-info-button-color: #64CFF2;
+
+  --ui-blueprint-button-color: #005e89;
+  --ui-blueprint-button-color-hover: #77B3C9;
+  --ui-blueprint-button-color-disabled: #002d42;
+
+  --ui-button-shadow: inset 0 1px 0 rgba(255,255,255,0.35), inset 0px -2px 2px rgba(0,0,0,0.3), inset 1px 0 3px rgba(0, 0, 0, 0.5), inset 1px 0 2px rgba(0, 0, 0, 0.5);;
+
+  --ui-header-background: #313031;
+  --ui-inset-background: #403F40;
+  --ui-font-family: "Titillium Web";
+
+  --ui-inset-shadow-distance: 2px;
+  --ui-inset-shadow: inset var(--ui-inset-shadow-distance) var(--ui-inset-shadow-distance) 3px rgba(0, 0, 0, 0.75), inset calc(-1 * var(--ui-inset-shadow-distance)) calc(-1 * var(--ui-inset-shadow-distance)) 2px rgba(0, 0, 0, 0.5);
+
+  --ui-padding-size: theme("padding.4");
+  --ui-padding-half: calc(var(--ui-padding-size) / 2);
+
+  --inset-shadow-spread: 2px;
+  --inset-shadow-color: rgba(0, 0, 0, 0.75);
+  --inset-shadow-size: 2px;
+  --inset-shadow: inset var(--inset-shadow-size) 0px var(--inset-shadow-spread) var(--inset-shadow-color), inset 0px var(--inset-shadow-size) var(--inset-shadow-spread) var(--inset-shadow-color), inset calc(-1 * var(--inset-shadow-size)) 0px var(--inset-shadow-spread) var(--inset-shadow-color), 0px 0px var(--inset-shadow-size) #312F2E;
+  --inset-border-bottom: 1px solid hsla(0, 0.5%, 37.8%, 100%);
+
+  /* background-color: var(--ui-inset-background);
+  box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.5); */
+
+  --sans-serif-font-family: var(--ui-font-family), system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  font-family: var(--sans-serif-font-family);
   line-height: 1.5;
   font-weight: 400;
+  font-size: 14px;
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
@@ -14,73 +59,128 @@
   -webkit-text-size-adjust: 100%;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+.btn-copy-blueprint {
+  background-color: var(--ui-blueprint-button-color);
+  color: white;
+  border: 0;
+  padding: 8px 10px;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: var(--ui-button-shadow);
+  border-radius: 1px;
 }
 
-body {
-  margin: 0;
+.btn-copy-blueprint:hover:not(:disabled) {
+  background-color: var(--ui-blueprint-button-color-hover);
+}
+
+.btn-copy-blueprint:disabled {
+  background-color: var(--ui-blueprint-button-color-disabled);
+  color: hsla(0, 0%, 100%, 0.15);
+}
+
+.btn-copy-blueprint:active {
+  background-color: #00496b !important;
+  box-shadow: unset;
+}
+
+.btn-copy-blueprint:disabled img {
+  opacity: 0.15;
+}
+
+.btn {
+  border: 0;
+  padding: 8px 10px;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: var(--ui-button-shadow);
+  border-radius: 1px;
+}
+
+.btn-danger {
+  background-color: var(--factorio-danger-bg-color);
+  color: black;
+}
+
+.btn-danger:hover:not(:disabled):not(:active) {
+  background-color: var(--factorio-danger-bg-color-hover);
+  box-shadow: 0 0 5px #FF4852, var(--ui-button-shadow)
+}
+
+.btn-danger:disabled {
+  background-color: var(--factorio-danger-bg-color-disabled);
+  color: hsla(0, 0%, 100%, 0.15);
+  box-shadow: var(--ui-inset-shadow);
+}
+
+.btn-danger:disabled img {
+  opacity: 0.3;
+}
+
+.btn-danger:active:not(:disabled) {
+  --shadow-inset-1-color: rgba(0, 0, 0, 0.5);
+  --shadow-inset-1-width: 1px;
+  --shadow-inset-1: inset 0 var(--shadow-inset-1-width) 1px var(--shadow-inset-1-color), inset var(--shadow-inset-1-width) var(--shadow-inset-1-width) 1px var(--shadow-inset-1-color), inset calc(-1 * var(--shadow-inset-1-width)) 0 1px var(--shadow-inset-1-color), inset 0 calc(-1 * var(--shadow-inset-1-width)) 1px var(--shadow-inset-1-color);
+  --shadow-inset-2-color: #751C20;
+  --shadow-inset-2-width: 2px;
+  --shadow-inset-2: inset 0 var(--shadow-inset-2-width) 1px var(--shadow-inset-2-color), inset var(--shadow-inset-2-width) var(--shadow-inset-2-width) 1px var(--shadow-inset-2-color), inset calc(-1 * var(--shadow-inset-2-width)) 0 1px var(--shadow-inset-2-color), inset 0 calc(-1 * var(--shadow-inset-2-width)) 1px var(--shadow-inset-2-color);
+  /* --shadow-inset-3-color: #CB4A4F;
+  --shadow-inset-3-width: 3px;
+  --shadow-inset-3: inset 0 var(--shadow-inset-3-width) 1px var(--shadow-inset-3-color), inset var(--shadow-inset-3-width) var(--shadow-inset-3-width) 1px var(--shadow-inset-3-color), inset calc(-1 * var(--shadow-inset-3-width)) 0 1px var(--shadow-inset-3-color), inset 0 calc(-1 * var(--shadow-inset-3-width)) 1px var(--shadow-inset-3-color); */
+  --shadow-inset-4-color: #E46A6E;
+  /* --shadow-inset-4-width: 4px; */
+  --shadow-inset-4-width: 3px;
+  --shadow-inset-4: inset 0 var(--shadow-inset-4-width) 2px var(--shadow-inset-4-color), inset var(--shadow-inset-4-width) var(--shadow-inset-4-width) 2px var(--shadow-inset-4-color), inset calc(-1 * var(--shadow-inset-4-width)) 0 2px var(--shadow-inset-4-color), inset 0 calc(-1 * var(--shadow-inset-4-width)) 2px var(--shadow-inset-4-color);
+  background-color: #FF9598;
+  box-shadow: var(--shadow-inset-1), var(--shadow-inset-2),
+  /* var(--shadow-inset-3),  */
+  var(--shadow-inset-4);
+}
+
+.btn-icon {
+  padding: 0;
+  width: 24px;
+  height: 24px;
   display: flex;
-  /* place-items: center; */
-  min-width: 320px;
-  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-.card {
-  padding: 2em;
+.btn-icon > img {
+  width: 14px;
 }
 
 #app {
+  min-height: 100vh;
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
+  width: 100%;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  /* transition: border-color 0.25s; */
-  transition: all 0.25s;
+.tooltip {
+  background-color: hsla(300, 1.5%, 12.7%, 0.95);
+  color: white;
+  box-shadow: var(--inset-shadow);
+  box-shadow: var(--ui-button-shadow);
+  padding: 6px;
+  font-size: 13px;
+  border-radius: 1px;
+  max-width: 300px;
 }
-button:hover {
-  border-color: #646cff;
-  background-color:rgb(46, 46, 46);
-}
-button:active {
-  background-color:rgb(66, 66, 66);
-}
-button:focus,
-button:focus-visible {
+
+.dropzone:focus {
   outline: 4px auto -webkit-focus-ring-color;
+  border-color: var(--ui-highlight-color) !important;
+  color: var(--ui-highlight-color) !important;
+  /* transition-property: border-color, color !important;
+  transition-duration: 0.25s !important; */
+  transition: unset !important;
 }
-/* button: */
+.dropzone {
+  background-color: transparent !important;
+}
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.text-center {
+  text-align: center;
 }
