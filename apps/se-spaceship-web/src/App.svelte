@@ -9,8 +9,8 @@
   import SettingRowTextInput from "./SettingRowTextInput.svelte";
   import UIPanel from "./UIPanel.svelte";
 
-  import resetIconBlack from "./assets/images/reset-icon-black.png";
-  import resetIconWhite from "./assets/images/reset-icon-white.png";
+  import trashIconBlack from "./assets/images/trash-icon-black.png";
+  import trashIconWhite from "./assets/images/trash-icon-white.png";
 
   let alpha = 1;
   let error = "";
@@ -172,14 +172,14 @@
 <main class="flex flex-col gap-4 md:flex-row">
   <div class="flex w-full flex-col gap-4">
     <UIPanel title="Input">
-      <div slot="title-actions">
+      <div slot="insetActions">
         <button
           class="btn btn-icon btn-danger"
           on:click={() => reset()}
           disabled={!$store.inputSrc}
         >
           <img
-            src={$store.inputSrc ? resetIconBlack : resetIconWhite}
+            src={$store.inputSrc ? trashIconBlack : trashIconWhite}
             alt="Reset"
           />
         </button>

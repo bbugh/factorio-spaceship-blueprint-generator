@@ -5,14 +5,26 @@
 <div class="ui-panel">
   <div class="ui-panel-title">
     <span class="ui-panel-title-text">{title}</span>
-    <div class="ui-panel-title-actions">
-      <slot name="title-actions" />
-    </div>
+    <!-- eslint-disable-next-line @typescript-eslint/no-unsafe-member-access https://github.com/sveltejs/rfcs/pull/38 -->
+    {#if $$slots.titleActions}
+      <div class="ui-panel-title-actions">
+        <slot name="titleActions" />
+      </div>
+    {/if}
   </div>
+  <!-- eslint-disable-next-line @typescript-eslint/no-unsafe-member-access https://github.com/sveltejs/rfcs/pull/38 -->
+  {#if $$slots.insetActions}
+    <div class="ui-inset-actions">
+      <slot name="insetActions" />
+    </div>
+  {/if}
   <div class="ui-inset flex flex-col gap-3">
     <slot />
   </div>
-  <slot name="bottom" />
+  <!-- eslint-disable-next-line @typescript-eslint/no-unsafe-member-access https://github.com/sveltejs/rfcs/pull/38 -->
+  {#if $$slots.bottom}
+    <slot name="bottom" />
+  {/if}
 </div>
 
 <style>
@@ -60,5 +72,21 @@
     box-shadow: var(--ui-inset-shadow);
     padding: var(--ui-padding-half);
     border-radius: 1px;
+  }
+
+  .ui-inset-actions {
+    --shadow: inset 2px 2px 3px rgba(0, 0, 0, 0.75),
+      inset -2px 0 2px rgba(0, 0, 0, 0.5);
+    background-color: #242324;
+    box-shadow: var(--shadow);
+    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    padding: var(--ui-padding-half);
+  }
+
+  .ui-panel-title-actions:empty,
+  .ui-inset-actions:empty {
+    display: none;
   }
 </style>
