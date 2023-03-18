@@ -9,8 +9,8 @@
   import SettingRowTextInput from "./SettingRowTextInput.svelte";
   import UIPanel from "./UIPanel.svelte";
 
-  import resetIconBlack from "./assets/reset-icon-black.png";
-  import resetIconWhite from "./assets/reset-icon-white.png";
+  import resetIconBlack from "./assets/images/reset-icon-black.png";
+  import resetIconWhite from "./assets/images/reset-icon-white.png";
 
   let alpha = 1;
   let error = "";
@@ -24,6 +24,13 @@
 
   function reset() {
     resetStore();
+
+    alpha = 1;
+    error = "";
+    floorTile = "se-spaceship-floor";
+    maxSize = 25;
+    queued = false;
+    wallTile = "se-spaceship-wall";
 
     refreshCanvas();
   }
@@ -59,6 +66,7 @@
 
   // Needs to happen after <img> has loaded the source so we can get the natural image dimensions
   function onSourceImageLoaded(e: Event) {
+    console.log("onSourceImageLoaded");
     const source = e.target as HTMLImageElement;
 
     $store.sourceWidth = source.naturalWidth;
@@ -71,6 +79,8 @@
     if (!$store.imageData) {
       return;
     }
+
+    console.log("refreshCanvas");
 
     // This can't be done onMount because the canvas doesn't exist in the DOM
     // yet, and it is temporarily removed from the DOM when the image is loaded
@@ -90,11 +100,13 @@
   }
 
   function onActivity() {
+    console.log("onActivity");
     if (!queued) {
       queued = true;
       requestIdleCallback(() => {
         try {
           error = "";
+          console.log("generate");
           generate(maxSize, alpha, floorTile, wallTile);
           refreshCanvas();
         } catch (e) {
@@ -182,6 +194,7 @@
             id={inputId}
             min={1}
             max={254}
+            disabled={!$store.inputSrc}
             bind:value={alpha}
             on:change={onActivity}
           />
@@ -254,7 +267,7 @@
             id={inputId}
             min={10}
             max={$maxSizeMax}
-            step="10"
+            step={10}
             disabled={!$store.inputSrc}
             bind:value={maxSize}
             on:input={onActivity}

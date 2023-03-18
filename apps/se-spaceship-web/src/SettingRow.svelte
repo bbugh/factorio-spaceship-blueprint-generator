@@ -8,8 +8,10 @@
   $: inputId = hyphenate(title);
 </script>
 
-<div class="flex w-full items-center justify-between px-2 first:pt-2 last:pb-2">
-  <label for={inputId} class="flex items-center gap-1">
+<div
+  class="flex w-full items-center justify-between gap-3 px-2 first:pt-2 last:pb-2"
+>
+  <label for={inputId} class="flex items-center gap-1 whitespace-nowrap">
     {title}
     <InfoPopoverIcon title={hint} />
   </label>
