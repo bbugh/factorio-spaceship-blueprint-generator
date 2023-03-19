@@ -148,7 +148,7 @@
   });
 </script>
 
-<div class="mb-4 flex flex-col items-center justify-between md:flex-row">
+<header class="mb-4 flex flex-col items-center justify-between md:flex-row">
   <div>
     <h1 class="text-5xl">Spaceship Generator</h1>
   </div>
@@ -168,7 +168,7 @@
       />
     </a>
   </div>
-</div>
+</header>
 
 <main class="flex flex-col gap-4 md:flex-row">
   <div class="flex w-full flex-col gap-4">
@@ -320,6 +320,13 @@
     </UIPanel>
   </div>
 </main>
+
+<footer class="text-center text-sm text-gray-600">
+  This tool is an unofficial fan creation and is not affiliated with, endorsed,
+  or sponsored by Wube Software, the Factorio team, or the Space Exploration
+  mod. <br />The copyrights for Factorio and Space Exploration belong to their
+  respective owners.
+</footer>
 
 <style>
   .pixelated {

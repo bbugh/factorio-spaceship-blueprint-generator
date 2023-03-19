@@ -63,15 +63,34 @@
 
 body {
   background-color: black;
-  background-image: url('./assets/images/spaceback.png')
+  background-image: url('./assets/images/spaceback.png');
 }
 
 #app {
-  min-height: 100vh;
-  max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
-  width: 100%;
+
+  max-width: 1280px;
+  min-height: 100vh;
+
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "header"
+    "main"
+    "footer";
+}
+
+header {
+  grid-area: header;
+}
+
+main {
+  grid-area: main;
+}
+
+footer {
+  grid-area: footer;
 }
 
 .btn-copy-blueprint {
