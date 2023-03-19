@@ -61,6 +61,19 @@
   -webkit-text-size-adjust: 100%;
 }
 
+body {
+  background-color: black;
+  background-image: url('./assets/images/spaceback.png')
+}
+
+#app {
+  min-height: 100vh;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  width: 100%;
+}
+
 .btn-copy-blueprint {
   background-color: var(--ui-blueprint-button-color);
   color: white;
@@ -150,14 +163,6 @@
 
 .btn-icon > img {
   width: 14px;
-}
-
-#app {
-  min-height: 100vh;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  width: 100%;
 }
 
 .tooltip {

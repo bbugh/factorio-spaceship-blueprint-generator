@@ -48,7 +48,7 @@
     font-weight: bold;
     margin-bottom: var(--ui-padding-half);
     text-align: left;
-    background-image: url("/images/panel-vent.png");
+    background-image: url("./assets/images/panel-vent.png");
     background-position: center;
     background-size: 4px 100%;
     display: flex;

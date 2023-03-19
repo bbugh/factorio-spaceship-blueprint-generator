@@ -9,6 +9,7 @@
   import SettingRowTextInput from "./SettingRowTextInput.svelte";
   import UIPanel from "./UIPanel.svelte";
 
+  import blueprintIcon from "./assets/images/blueprint-icon.png";
   import trashIconBlack from "./assets/images/trash-icon-black.png";
   import trashIconWhite from "./assets/images/trash-icon-white.png";
 
@@ -313,7 +314,7 @@
           class="btn-copy-blueprint"
           disabled={!$store.blueprint}
           on:click={() => copyBlueprintToClipboard()}
-          ><img src="/images/blueprint-icon.png" alt="icon" /> Copy Blueprint</button
+          ><img src={blueprintIcon} alt="icon" /> Copy Blueprint</button
         >
       </div>
     </UIPanel>
