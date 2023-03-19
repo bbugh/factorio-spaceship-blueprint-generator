@@ -24,8 +24,8 @@ jobs:
       with:
         toolchain: stable
 
-    - name: Install wasm-bindgen
-      run: cargo install wasm-bindgen-cli
+    - name: Install wasm-pack
+      run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
     - name: Install Node.js v18.x
       uses: actions/setup-node@v3
