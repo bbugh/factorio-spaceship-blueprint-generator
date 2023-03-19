@@ -9,6 +9,7 @@
   import SettingRowTextInput from "./SettingRowTextInput.svelte";
   import UIPanel from "./UIPanel.svelte";
 
+  import blueprintIcon from "./assets/images/blueprint-icon.png";
   import trashIconBlack from "./assets/images/trash-icon-black.png";
   import trashIconWhite from "./assets/images/trash-icon-white.png";
 
@@ -147,7 +148,7 @@
   });
 </script>
 
-<div class="mb-4 flex flex-col items-center justify-between md:flex-row">
+<header class="mb-4 flex flex-col items-center justify-between md:flex-row">
   <div>
     <h1 class="text-5xl">Spaceship Generator</h1>
   </div>
@@ -167,9 +168,9 @@
       />
     </a>
   </div>
-</div>
+</header>
 
-<main class="flex flex-col gap-4 md:flex-row">
+<main class="flex flex-col gap-4 lg:flex-row">
   <div class="flex w-full flex-col gap-4">
     <UIPanel title="Input">
       <div slot="insetActions">
@@ -313,12 +314,19 @@
           class="btn-copy-blueprint"
           disabled={!$store.blueprint}
           on:click={() => copyBlueprintToClipboard()}
-          ><img src="/images/blueprint-icon.png" alt="icon" /> Copy Blueprint</button
+          ><img src={blueprintIcon} alt="icon" /> Copy Blueprint</button
         >
       </div>
     </UIPanel>
   </div>
 </main>
+
+<footer class="text-center text-sm text-gray-600">
+  This tool is an unofficial fan creation and is not affiliated with, endorsed,
+  or sponsored by Wube Software, the Factorio team, or the Space Exploration
+  mod. <br />The copyrights for Factorio and Space Exploration belong to their
+  respective owners.
+</footer>
 
 <style>
   .pixelated {
