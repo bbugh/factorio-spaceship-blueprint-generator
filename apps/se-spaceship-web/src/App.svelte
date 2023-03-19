@@ -170,7 +170,7 @@
   </div>
 </header>
 
-<main class="flex flex-col gap-4 md:flex-row">
+<main class="flex flex-col gap-4 lg:flex-row">
   <div class="flex w-full flex-col gap-4">
     <UIPanel title="Input">
       <div slot="insetActions">
