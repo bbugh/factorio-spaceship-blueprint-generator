@@ -18,3 +18,43 @@ jobs:
     - name: Cargo version
       run: cargo --version
 
+    - name: Install Rust
+      uses: dtolnay/toolchain@e12eda571dc9a5ee5d58eecf4738ec291c66f295
+      with:
+        toolchain: stable
+
+    - name: Install wasm-bindgen
+      run: cargo install wasm-bindgen-cli
+
+    - name: Install Node.js v18.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      id: pnpm-install
+      with:
+        version: 7
+        run_install: false
+
+    - name: Get pnpm store directory
+      id: pnpm-cache
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+    - name: Setup pnpm cache
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: Install dependencies
+      run: pnpm install
+
+    - name: Build project
+      run: pnpm run build
+
