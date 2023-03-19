@@ -19,7 +19,7 @@ jobs:
       run: cargo --version
 
     - name: Install Rust
-      uses: dtolnay/toolchain@e12eda571dc9a5ee5d58eecf4738ec291c66f295
+      uses: dtolnay/rust-toolchain@@e12eda571dc9a5ee5d58eecf4738ec291c66f295
       with:
         toolchain: stable
 
