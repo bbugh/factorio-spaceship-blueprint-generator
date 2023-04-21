@@ -63,8 +63,11 @@ jobs:
     - name: Build project
       run: pnpm run build
 
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@bd8c6b06eba6b3d25d72b7a1767993c0aeee42e7
+    - name: Publish to Cloudflare Pages
+      uses: cloudflare/pages-action@v1
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        projectName: factorio-spaceship-blueprint-generator
+        directory: ./dist
+        gitHubToken: ${{ secrets.GITHUB_TOKEN }}
