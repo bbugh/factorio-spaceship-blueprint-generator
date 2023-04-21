@@ -7,11 +7,14 @@
     "dev": "concurrently -n lib,client -c \"blue.bold,green.bold\" \"yarn dev:lib\" \"yarn dev:client\"",
     "dev:client": "cd apps/se-spaceship-web && yarn dev",
     "dev:lib": "cd packages/image-to-blueprint && cargo watch -i .gitignore -i \"pkg/*\" -s \"wasm-pack -q build --target web\"",
+    "build": "yarn build:lib && yarn build:client",
+    "build:client": "cd apps/se-spaceship-web && yarn build",
+    "build:lib": "cd packages/image-to-blueprint && wasm-pack build --target web --release",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "Brian Bugh",
-  "license": "ISC",
+  "license": "AGPL-3.0-or-later",
   "devDependencies": {
     "concurrently": "^7.6.0"
   }

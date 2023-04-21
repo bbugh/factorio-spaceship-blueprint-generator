@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, afterUpdate } from "svelte";
 
   export let min = 0;
   export let max = 100;
@@ -14,22 +14,18 @@
   let track: HTMLDivElement = null;
 
   let sliderActive = false;
-  let trackWidth: number = null;
+  let trackWidth = 0;
 
   $: stepDiff = Math.round(min / step) * step - min;
   $: valuePrecision = value.toString().split(".")[1]
     ? value.toString().split(".")[1].length
     : 0;
 
-  function clamp(value: number, min: number, max: number): number {
-    return Math.min(Math.max(value, min), max);
-  }
-
   const dispatch = createEventDispatcher();
 
   function setValue(newValue: number) {
     const saveValue = Math.min(Math.max(newValue, min), max);
-    const nearestValue = Math.round(saveValue / step) * step - stepDiff;
+    const nearestValue = Math.round(saveValue / step) * step - (stepDiff ?? 0);
 
     const newerValue = valuePrecision
       ? parseFloat(nearestValue.toFixed(valuePrecision))
@@ -38,8 +34,6 @@
     if (newerValue !== value) {
       value = newerValue;
       dispatch("input", { value });
-
-      refreshSliderPosition();
     }
   }
 
@@ -129,18 +123,27 @@
     if (handled) e.preventDefault();
   }
 
-  $: if (value && slider) {
-    value = clamp(value, min, max);
-    refreshSliderPosition();
-  }
-
   function refreshSliderPosition() {
+    if (!slider || !button) return;
+
     const newPosition =
       ((value - min) / (max - min)) * (slider.offsetWidth - button.offsetWidth);
 
-    button.style.left = newPosition.toString() + "px";
+    button.style.left = Math.max(0, newPosition).toString() + "px";
     trackWidth = newPosition + button.offsetWidth / 2;
   }
+
+  $: if (disabled != null && min && max && step && pageStep) {
+    if (min > max) {
+      max = min;
+    }
+
+    setValue(value);
+  }
+
+  afterUpdate(() => {
+    refreshSliderPosition();
+  });
 </script>
 
 <div
@@ -215,15 +218,17 @@
 
   .custom-slider-button {
     user-select: none;
-    --width: 20px;
+    --thumb-width: 20px;
     --image-width: 40;
     --image-height: 24;
-    width: var(--width);
-    height: calc((var(--image-height) / var(--image-width)) * var(--width));
+    width: var(--thumb-width);
+    height: calc(
+      (var(--image-height) / var(--image-width)) * var(--thumb-width)
+    );
     left: 0;
     box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.35);
     z-index: 3;
-    background-image: url("./assets/images/slider-thumb-normal.png");
+    background-image: url("./assets/images/slider-thumb.png");
     background-size: cover;
 
     position: absolute;
@@ -242,14 +247,14 @@
   .custom-slider:focus-visible .custom-slider-button:not(.disabled),
   .custom-slider-button:hover:not(:active):not(.disabled) {
     box-shadow: 0 0 3px 1px var(--ui-highlight-color);
-    background-image: url("./assets/images/slider-thumb-hover.png");
+    background-position-x: calc(-1 * var(--thumb-width));
   }
 
   .custom-slider-button:active {
-    background-image: url("./assets/images/slider-thumb-active.png");
+    background-position-x: calc(-2 * var(--thumb-width));
   }
 
   .custom-slider-button.disabled {
-    background-image: url("./assets/images/slider-thumb-disabled.png");
+    background-position-x: calc(-3 * var(--thumb-width));
   }
 </style>

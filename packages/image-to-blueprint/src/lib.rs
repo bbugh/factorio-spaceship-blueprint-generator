@@ -15,11 +15,6 @@ use num_traits::ToPrimitive;
 use serde::{Deserialize, Serialize};
 use tsify::Tsify;
 
-// When the `wee_alloc` feature is enabled, use `wee_alloc` as the global allocator.
-#[cfg(feature = "wee_alloc")]
-#[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
 #[wasm_bindgen(start)]
 pub fn main() {
     set_panic_hook();
