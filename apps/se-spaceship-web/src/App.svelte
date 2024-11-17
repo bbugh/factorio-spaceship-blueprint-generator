@@ -301,7 +301,7 @@
             id={inputId}
             min={10}
             max={$maxSizeMax}
-            step={10}
+            step={1}
             disabled={!$store.inputSrc}
             bind:value={maxSize}
             on:input={onActivity}
