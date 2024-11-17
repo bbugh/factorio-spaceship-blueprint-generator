@@ -159,6 +159,26 @@
   onDestroy(() => {
     window.removeEventListener("paste", onPaste);
   });
+
+  function getSizeDescription(maxSize: number, module: string): string {
+    if (maxSize <= 10) {
+      return "Tiny";
+    } else if (maxSize <= 35) {
+      return "Small";
+    } else if (maxSize <= 50) {
+      return "Medium";
+    } else if (maxSize <= 100) {
+      return "Large";
+    } else if (maxSize <= 150) {
+      return "Very large";
+    } else if (maxSize > 200 && module === "space-age") {
+      return "Too large";
+    } else {
+      return "Absurdly large";
+    }
+  }
+
+  $: sizeDescription = getSizeDescription(maxSize, $store.module);
 </script>
 
 <div class="mb-4 flex flex-col items-center justify-between md:flex-row">
@@ -329,14 +349,17 @@
       </InputGroup>
       {#if $store.inputSrc}
         <InputGroup title="Blueprint Preview">
-          <div class="w-full text-center">
+          <div class="my-4 w-full text-center">
             <canvas
               bind:this={canvas}
               id="outputCanvas"
               class="pixelated mx-auto max-w-full"
               style="width: 0px; height: 0px"
             />
-            <div>{$store.outputWidth}&times;{$store.outputHeight}</div>
+            <div>
+              {$store.outputWidth}&times;{$store.outputHeight} =
+              {$store.outputWidth * $store.outputHeight} t&sup2; ({sizeDescription})
+            </div>
           </div>
         </InputGroup>
 
