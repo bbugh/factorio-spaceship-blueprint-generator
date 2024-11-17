@@ -295,7 +295,7 @@
       <InputGroup>
         <SettingRow
           title="Max Size"
-          hint="The maximum width or height in tiles that the blueprint will be. The input image will be scaled down. 35 is a small ship (like for science), 50 is a mid-size travel ship, 75-100 is a large self-sufficient ship, and anything 150 or above is very large. The maximum size for Space Age 200x200, inclusive of the hub; Space Exploration does not have a maximum size, or it's absolutely massive."
+          hint="The maximum width or height in tiles that the blueprint will be. The input image will be scaled down. 35 is a small ship (like for science), 50 is a mid-size travel ship, 75-100 is a large self-sufficient ship, and anything 150 or above is very large. The maximum size for Space Age 200x200, inclusive of the hub; Space Exploration does not have a maximum size."
           let:inputId
         >
           <SettingRowSlider
