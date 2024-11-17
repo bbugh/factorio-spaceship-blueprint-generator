@@ -292,6 +292,14 @@
 
   <div class="w-full">
     <UIPanel title="Output">
+      <div slot="insetActions">
+        <button
+          class="btn-copy-blueprint"
+          disabled={!$store.blueprint}
+          on:click={() => copyBlueprintToClipboard()}
+          ><img src="/images/blueprint-icon.png" alt="icon" /> Copy Import String</button
+        >
+      </div>
       <InputGroup>
         <SettingRow
           title="Max Size"
@@ -349,18 +357,6 @@
           </div>
         </InputGroup>
       {/if}
-      <div
-        slot="bottom"
-        class="flex justify-end pt-2"
-        class:hidden={!$store.blueprint}
-      >
-        <button
-          class="btn-copy-blueprint"
-          disabled={!$store.blueprint}
-          on:click={() => copyBlueprintToClipboard()}
-          ><img src="/images/blueprint-icon.png" alt="icon" /> Copy Blueprint</button
-        >
-      </div>
     </UIPanel>
   </div>
 </main>
