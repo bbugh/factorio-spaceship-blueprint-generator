@@ -14,6 +14,7 @@
   {disabled}
   bind:value
   on:change
+  on:input
 />
 
 <style>

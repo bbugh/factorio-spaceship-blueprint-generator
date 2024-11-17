@@ -12,5 +12,5 @@
 
 <div class="flex gap-2">
   <Slider {id} {min} {max} {step} {disabled} bind:value on:input on:change />
-  <SettingRowTextInput class="w-16" bind:value on:change {disabled} />
+  <SettingRowTextInput class="w-16" bind:value on:change on:input {disabled} />
 </div>
