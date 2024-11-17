@@ -16,6 +16,7 @@ type Store = {
   module: "space-age" | "space-exploration" | "custom";
   customWallTile: string;
   customFloorTile: string;
+  generateWalls: boolean;
 
   blueprint: string;
   generating: boolean;
@@ -34,6 +35,8 @@ const initialStore: Store = {
   module: "space-age",
   customWallTile: "stone-wall",
   customFloorTile: "space-platform-foundation",
+  generateWalls: true,
+
   blueprint: "",
   generating: false,
   imageBuffer: null,
@@ -100,7 +103,8 @@ export function generate(
   maxSize: number,
   alpha: number,
   floorTile: string,
-  wallTile: string
+  wallTile: string,
+  generateWalls: boolean
 ) {
   const { generating, imageBuffer, inputSrc } = get(store);
 
@@ -127,7 +131,8 @@ export function generate(
       maxSize,
       alpha,
       floorTile,
-      wallTile
+      wallTile,
+      generateWalls
     );
     update({
       blueprint: result.base64,

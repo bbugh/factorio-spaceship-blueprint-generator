@@ -12,6 +12,7 @@
   import Dropzone from "svelte-file-dropzone";
   import InputGroup from "./InputGroup.svelte";
   import SettingRow from "./SettingRow.svelte";
+  import SettingsRowCheckBox from "./SettingsRowCheckBox.svelte";
   import SettingRowSlider from "./SettingRowSlider.svelte";
   import SettingRowTextInput from "./SettingRowTextInput.svelte";
   import UIPanel from "./UIPanel.svelte";
@@ -113,7 +114,13 @@
         try {
           error = "";
           console.log("generate");
-          generate(maxSize, alpha, $tiles.floor, $tiles.wall);
+          generate(
+            maxSize,
+            alpha,
+            $tiles.floor,
+            $tiles.wall,
+            $store.generateWalls
+          );
           refreshCanvas();
         } catch (e) {
           error = (e as Error).message.toString();
@@ -296,6 +303,16 @@
             step={10}
             disabled={!$store.inputSrc}
             bind:value={maxSize}
+            on:input={onActivity}
+          />
+        </SettingRow>
+
+        <SettingRow
+          title="Generate Walls"
+          hint="Whether to generate walls or not. Important for Space Exploration, not the best idea for Space Age except for aesthetics."
+        >
+          <SettingsRowCheckBox
+            bind:checked={$store.generateWalls}
             on:input={onActivity}
           />
         </SettingRow>

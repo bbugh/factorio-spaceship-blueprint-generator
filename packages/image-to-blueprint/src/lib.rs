@@ -115,7 +115,7 @@ pub struct BlueprintResult {
 // HACK: This is a workaround for wasm_bindgen not supporting custom return types
 #[wasm_bindgen(typescript_custom_section)]
 const TS_APPEND_CONTENT: &'static str = r#"
-export function getBlueprintFromImage(image_data: Uint8Array, max_dimension: number, max_alpha: number, floor_tile_name: string, wall_tile_name: string): BlueprintResult;
+export function getBlueprintFromImage(imageData: Uint8Array, maxDimension: number, maxAlpha: number, floorTileName: string, wallTileName: string, generateWalls: boolean): BlueprintResult;
 "#;
 
 #[wasm_bindgen(js_name = getBlueprintFromImage, skip_typescript)]
@@ -125,6 +125,7 @@ pub fn get_blueprint_from_image(
     max_alpha: u8,
     floor_tile_name: &str,
     wall_tile_name: &str,
+    generate_walls: bool
 ) -> Result<JsValue, JsValue> {
     let image = match image::load_from_memory(image_data) {
         Ok(img) => img,
@@ -145,7 +146,7 @@ pub fn get_blueprint_from_image(
     };
 
     let blueprint =
-        match create_blueprint_from_image(image, max_alpha, floor_tile_name, wall_tile_name) {
+        match create_blueprint_from_image(image, max_alpha, floor_tile_name, wall_tile_name, generate_walls) {
             Ok(blueprint) => blueprint,
             Err(e) => return Err(JsError::new(&format!("{}", e)).into()),
         };
@@ -203,6 +204,7 @@ fn create_blueprint_from_image(
     maximum_alpha: u8,
     floor_tile_name: &str,
     wall_tile_name: &str,
+    generate_walls: bool,
 ) -> Result<Blueprint, Box<dyn std::error::Error>> {
     let (width, height) = img.dimensions();
 
@@ -223,6 +225,10 @@ fn create_blueprint_from_image(
                 },
                 name: floor_tile_name.to_string(),
             });
+
+            if !generate_walls {
+                continue;
+            }
 
             let mut edge = false;
             for j in -1..=1 {
