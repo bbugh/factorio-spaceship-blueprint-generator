@@ -96,6 +96,12 @@
     border-radius: 0;
   }
 
+  /** override checkbox-label margin because that's handled by flexbox */
+  .checkbox-label {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
   /** override the checkbox label position because it doesn't work with tailwind by default */
   .checkbox-label input:checked ~ .checkbox::after {
     left: 6px;
