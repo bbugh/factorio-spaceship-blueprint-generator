@@ -154,9 +154,9 @@
 
 #app {
   min-height: 100vh;
-  max-width: 1280px;
+  max-width: 95vw;
   margin: 0 auto;
-  padding: 2rem;
+  padding-top: 2rem;
   width: 100%;
 }
 
