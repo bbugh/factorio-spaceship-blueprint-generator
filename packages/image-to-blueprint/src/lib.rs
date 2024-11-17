@@ -358,8 +358,8 @@ fn blueprint_image_from_blueprint(bp: &Blueprint) -> (DynamicImage, usize, usize
             if let Some(position) = position {
                 match position {
                     BlueprintPosition::Tile => {
-                        // image.put_pixel(x, y, Rgba([0, 0, 0, 255]));
-                        image.put_pixel(x, y, Rgba([58, 53, 46, 255]));
+                        image.put_pixel(x, y, Rgba([0, 0, 0, 255]));
+                        // image.put_pixel(x, y, Rgba([195, 195, 195, 255]));
                         // image.copy_from(&tile_image, image_x, image_y).unwrap();
                     }
                     BlueprintPosition::Entity => {
