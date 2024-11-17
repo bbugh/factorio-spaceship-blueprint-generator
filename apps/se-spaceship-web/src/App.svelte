@@ -278,8 +278,9 @@
               multiple="false"
             >
               <div class="mx-auto text-center">
-                Click to choose a GIF, JPEG, PNG, or WEBP image<br />or drag and
-                drop it here.<br /> Best results are achieved with pixel art.
+                Paste an image in this browser window, or click to choose a GIF,
+                JPEG, PNG, or WEBP image or drag and drop it here.<br /> Best results
+                are achieved with pixel art.
               </div>
             </Dropzone>
           </div>
