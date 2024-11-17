@@ -33,6 +33,7 @@ export function tooltip(element: Element) {
 			position: absolute;
 			top: ${centerY}px;
 			left: ${centerX}px;
+      z-index: 1000;
 		`;
     document.body.appendChild(toolTipElement);
   }
