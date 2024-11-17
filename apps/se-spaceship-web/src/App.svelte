@@ -157,7 +157,7 @@
   <div>
     <h1 class="text-5xl">Spaceship Generator</h1>
   </div>
-  <div>
+  <div class="flex items-center">
     <a href="https://factorio.com/"
       ><img
         src="/images/factorio-logo-sm.png"
@@ -165,6 +165,13 @@
         class="w-60"
       /></a
     >
+    <a href="https://www.factorio.com/space-age/overview">
+      <img
+        src="/images/space-age-logo-sm.png"
+        alt="Space Age logo"
+        class="w-60"
+      />
+    </a>
     <a href="https://mods.factorio.com/mod/space-exploration">
       <img
         src="/images/space-exploration-logo-sm.png"
