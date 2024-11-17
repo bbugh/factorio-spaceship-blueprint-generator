@@ -107,13 +107,14 @@
   }
 
   function onActivity() {
-    console.log("onActivity");
-    if (!queued) {
-      queued = true;
-      requestIdleCallback(() => {
-        try {
-          error = "";
-          console.log("generate");
+    if (queued) return;
+
+    queued = true;
+    requestIdleCallback(() => {
+      try {
+        error = "";
+        console.log("generate");
+        if ($store.inputSrc) {
           generate(
             maxSize,
             alpha,
@@ -122,13 +123,13 @@
             $store.generateWalls
           );
           refreshCanvas();
-        } catch (e) {
-          error = (e as Error).message.toString();
         }
+      } catch (e) {
+        error = (e as Error).message.toString();
+      }
 
-        queued = false;
-      });
-    }
+      queued = false;
+    });
   }
 
   async function copyBlueprintToClipboard() {
