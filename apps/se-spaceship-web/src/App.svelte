@@ -1,6 +1,13 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
-  import { generate, loadFile, maxSizeMax, resetStore, store } from "./store";
+  import {
+    generate,
+    loadFile,
+    maxSizeMax,
+    resetStore,
+    store,
+    tiles,
+  } from "./store";
 
   import Dropzone from "svelte-file-dropzone";
   import InputGroup from "./InputGroup.svelte";
@@ -12,12 +19,13 @@
   import trashIconBlack from "./assets/images/trash-icon-black.png";
   import trashIconWhite from "./assets/images/trash-icon-white.png";
 
-  let alpha = 1;
+  const defaultAlpha = 1;
+  const defaultMaxSize = 50;
+
+  let alpha = defaultAlpha;
   let error = "";
-  let floorTile = "se-spaceship-floor";
-  let maxSize = 25;
+  let maxSize = defaultMaxSize;
   let queued = false;
-  let wallTile = "se-spaceship-wall";
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
@@ -25,12 +33,10 @@
   function reset() {
     resetStore();
 
-    alpha = 1;
+    alpha = defaultAlpha;
     error = "";
-    floorTile = "se-spaceship-floor";
-    maxSize = 25;
+    maxSize = defaultMaxSize;
     queued = false;
-    wallTile = "se-spaceship-wall";
 
     refreshCanvas();
   }
@@ -107,7 +113,7 @@
         try {
           error = "";
           console.log("generate");
-          generate(maxSize, alpha, floorTile, wallTile);
+          generate(maxSize, alpha, $tiles.floor, $tiles.wall);
           refreshCanvas();
         } catch (e) {
           error = (e as Error).message.toString();
@@ -201,28 +207,41 @@
         </SettingRow>
 
         <SettingRow
-          title="Floor Tile"
-          hint="The game identifier of the floor tile you want to use, if you want something different than the Space Exploration default."
-          let:inputId
+          title="Blueprint Base"
+          hint="The game or mod that will be used to create the blueprint."
         >
-          <SettingRowTextInput
-            id={inputId}
-            bind:value={floorTile}
-            on:change={onActivity}
-          />
+          <select bind:value={$store.module} on:change={onActivity}>
+            <option value="space-age">Space Age</option>
+            <option value="space-exploration">Space Exploration</option>
+            <option value="custom">Custom</option>
+          </select>
         </SettingRow>
 
-        <SettingRow
-          title="Wall Entity"
-          hint="The game identifier of the wall entity you want to use, if you want something different than the Space Exploration default."
-          let:inputId
-        >
-          <SettingRowTextInput
-            id={inputId}
-            bind:value={wallTile}
-            on:change={onActivity}
-          />
-        </SettingRow>
+        {#if $store.module === "custom"}
+          <SettingRow
+            title="Floor Tile"
+            hint="The game identifier of the floor tile you want to use, if you want something different than the Space Exploration default."
+            let:inputId
+          >
+            <SettingRowTextInput
+              id={inputId}
+              bind:value={$store.customFloorTile}
+              on:change={onActivity}
+            />
+          </SettingRow>
+
+          <SettingRow
+            title="Wall Entity"
+            hint="The game identifier of the wall entity you want to use, if you want something different than the Space Exploration default."
+            let:inputId
+          >
+            <SettingRowTextInput
+              id={inputId}
+              bind:value={$store.customWallTile}
+              on:change={onActivity}
+            />
+          </SettingRow>
+        {/if}
       </InputGroup>
       <InputGroup title="Source">
         {#if $store.inputSrc}
@@ -290,13 +309,13 @@
         <InputGroup title="Components">
           <div class="flex w-full flex-row justify-between gap-2 p-2">
             <div class="inset-object flex w-full flex-auto justify-between p-2">
-              <div>{floorTile}</div>
+              <div>{$tiles.floor}</div>
               <div style="text-shadow: 1px 1px 3px black; font-weight: bold">
                 {$store.outputTileCount}
               </div>
             </div>
             <div class="inset-object flex w-full flex-auto justify-between p-2">
-              <div>{wallTile}</div>
+              <div>{$tiles.wall}</div>
               <div style="text-shadow: 1px 1px 3px black; font-weight: bold">
                 {$store.outputEntityCount}
               </div>

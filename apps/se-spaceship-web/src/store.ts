@@ -1,7 +1,22 @@
 import { getBlueprintFromImage } from "image-to-blueprint";
 import { derived, get, writable } from "svelte/store";
 
+const moduleTiles = {
+  "space-exploration": {
+    floor: "se-spaceship-floor",
+    wall: "se-spaceship-wall",
+  },
+  "space-age": {
+    floor: "space-platform-foundation",
+    wall: "stone-wall",
+  },
+} as const;
+
 type Store = {
+  module: "space-age" | "space-exploration" | "custom";
+  customWallTile: string;
+  customFloorTile: string;
+
   blueprint: string;
   generating: boolean;
   imageBuffer: Uint8Array | null;
@@ -16,6 +31,9 @@ type Store = {
 };
 
 const initialStore: Store = {
+  module: "space-age",
+  customWallTile: "stone-wall",
+  customFloorTile: "space-platform-foundation",
   blueprint: "",
   generating: false,
   imageBuffer: null,
@@ -39,9 +57,17 @@ export function resetStore() {
   store.set(initialStore);
 }
 
-export const maxSizeMax = derived(store, ($store) => {
-  return Math.max($store.sourceWidth, $store.sourceHeight);
-});
+export const tiles = derived(store, ($store) =>
+  $store.module === "custom"
+    ? { floor: $store.customFloorTile, wall: $store.customWallTile }
+    : moduleTiles[$store.module]
+);
+
+export const maxSizeMax = derived(store, ($store) =>
+  $store.module === "space-age"
+    ? 200
+    : Math.max($store.sourceWidth, $store.sourceHeight)
+);
 
 export function loadFile(fileload: File) {
   // check if the type is png, jpeg, webp, or gif
