@@ -19,6 +19,7 @@
 
   import trashIconBlack from "./assets/images/trash-icon-black.png";
   import trashIconWhite from "./assets/images/trash-icon-white.png";
+  import SelectBox from "./SelectBox.svelte";
 
   const defaultAlpha = 1;
   const defaultMaxSize = 50;
@@ -240,43 +241,6 @@
             on:change={onActivity}
           />
         </SettingRow>
-
-        <SettingRow
-          title="Blueprint Base"
-          hint="The game or mod that will be used to create the blueprint."
-        >
-          <select bind:value={$store.module} on:change={onActivity}>
-            <option value="space-age">Space Age</option>
-            <option value="space-exploration">Space Exploration</option>
-            <option value="custom">Custom</option>
-          </select>
-        </SettingRow>
-
-        {#if $store.module === "custom"}
-          <SettingRow
-            title="Floor Tile"
-            hint="The game identifier of the floor tile you want to use, if you want something different than the Space Exploration default."
-            let:inputId
-          >
-            <SettingRowTextInput
-              id={inputId}
-              bind:value={$store.customFloorTile}
-              on:change={onActivity}
-            />
-          </SettingRow>
-
-          <SettingRow
-            title="Wall Entity"
-            hint="The game identifier of the wall entity you want to use, if you want something different than the Space Exploration default."
-            let:inputId
-          >
-            <SettingRowTextInput
-              id={inputId}
-              bind:value={$store.customWallTile}
-              on:change={onActivity}
-            />
-          </SettingRow>
-        {/if}
       </InputGroup>
       <InputGroup title="Source">
         {#if $store.inputSrc}
@@ -321,6 +285,43 @@
         >
       </div>
       <InputGroup>
+        <SettingRow
+          title="Blueprint Base"
+          hint="The game or mod that will be used to create the blueprint. Determines maximum sizes and the default floor and wall tiles."
+        >
+          <SelectBox bind:value={$store.module} on:change={onActivity}>
+            <option value="space-age">Space Age</option>
+            <option value="space-exploration">Space Exploration</option>
+            <option value="custom">Custom</option>
+          </SelectBox>
+        </SettingRow>
+
+        {#if $store.module === "custom"}
+          <SettingRow
+            title="Floor Tile"
+            hint="The game identifier of the custom floor tile you want to use."
+            let:inputId
+          >
+            <SettingRowTextInput
+              id={inputId}
+              bind:value={$store.customFloorTile}
+              on:change={onActivity}
+            />
+          </SettingRow>
+
+          <SettingRow
+            title="Wall Entity"
+            hint="The game identifier of the custom wall entity you want to use."
+            let:inputId
+          >
+            <SettingRowTextInput
+              id={inputId}
+              bind:value={$store.customWallTile}
+              on:change={onActivity}
+            />
+          </SettingRow>
+        {/if}
+
         <SettingRow
           title="Max Size"
           hint="The maximum width or height in tiles that the blueprint will be. The input image will be scaled down. 35 is a small ship (like for science), 50 is a mid-size travel ship, 75-100 is a large self-sufficient ship, and anything 150 or above is very large. The maximum size for Space Age 200x200, inclusive of the hub; Space Exploration does not have a maximum size."
