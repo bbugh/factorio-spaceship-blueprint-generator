@@ -1,11 +1,18 @@
 <script lang="ts">
+  import InfoPopoverIcon from "./InfoPopoverIcon.svelte";
   export let checked: boolean;
+  export let hint;
 </script>
 
-<div class="checkbox-label">
+<label class="checkbox-label flex items-center">
   <input type="checkbox" bind:checked on:input />
   <div class="checkbox" />
-</div>
+  <div>
+    <slot />
+  </div>
+  &nbsp;
+  <InfoPopoverIcon title={hint} />
+</label>
 
 <style>
   /**

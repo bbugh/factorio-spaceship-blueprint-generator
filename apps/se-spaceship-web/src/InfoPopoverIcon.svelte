@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tooltip } from "./tooltip";
-  export let title = "Title";
+  export let title = "ERR: Missing tooltip text!";
 </script>
 
 <svg
@@ -8,7 +8,7 @@
   xmlns:xlink="http://www.w3.org/1999/xlink"
   viewBox="0 0 512 512"
   style="color: var(--ui-info-button-color);"
-  class="relative h-3 min-h-3 w-3 min-w-3"
+  class="relative inline h-3 min-h-3 w-3 min-w-3"
   data-title={title}
   use:tooltip
   ><path

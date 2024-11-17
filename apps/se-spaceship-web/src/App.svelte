@@ -12,7 +12,7 @@
   import Dropzone from "svelte-file-dropzone";
   import InputGroup from "./InputGroup.svelte";
   import SettingRow from "./SettingRow.svelte";
-  import SettingsRowCheckBox from "./SettingsRowCheckBox.svelte";
+  import SettingRowCheckBox from "./SettingRowCheckBox.svelte";
   import SettingRowSlider from "./SettingRowSlider.svelte";
   import SettingRowTextInput from "./SettingRowTextInput.svelte";
   import UIPanel from "./UIPanel.svelte";
@@ -309,15 +309,15 @@
           />
         </SettingRow>
 
-        <SettingRow
-          title="Generate Walls"
-          hint="Whether to generate walls or not. Important for Space Exploration, not the best idea for Space Age except for aesthetics."
-        >
-          <SettingsRowCheckBox
+        <div class="flex gap-1 px-2 first:pt-2 last:pb-2">
+          <SettingRowCheckBox
             bind:checked={$store.generateWalls}
             on:input={onActivity}
-          />
-        </SettingRow>
+            hint="Whether to generate walls or not. Required for Space Exploration ships, not necessary for Space Age platforms except for aesthetics."
+          >
+            Generate Walls
+          </SettingRowCheckBox>
+        </div>
       </InputGroup>
       {#if $store.inputSrc}
         <InputGroup title="Blueprint Preview">
