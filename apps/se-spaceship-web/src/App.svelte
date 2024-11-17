@@ -88,13 +88,13 @@
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const { imageData, sourceWidth, sourceHeight } = $store;
+    const { imageData, sourceWidth } = $store;
 
     canvas.width = imageData.width;
     canvas.height = imageData.height;
 
     canvas.style.width = `${sourceWidth}px`;
-    canvas.style.height = `${sourceHeight}px`;
+    canvas.style.height = `auto`;
 
     ctx.putImageData(imageData, 0, 0, 0, 0, imageData.width, imageData.height);
   }
