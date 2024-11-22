@@ -152,6 +152,10 @@
   width: 14px;
 }
 
+.space-background {
+  background-image: url("./assets/images/spaceback.png");
+}
+
 #app {
   min-height: 100vh;
   max-width: 95vw;

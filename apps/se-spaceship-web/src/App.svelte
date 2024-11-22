@@ -16,10 +16,14 @@
   import SettingRowSlider from "./SettingRowSlider.svelte";
   import SettingRowTextInput from "./SettingRowTextInput.svelte";
   import UIPanel from "./UIPanel.svelte";
+  import SelectBox from "./SelectBox.svelte";
 
+  import blueprintIcon from "./assets/images/blueprint-icon.png";
+  import factorioLogoSm from "./assets/images/factorio-logo-sm.png";
+  import spaceAgeLogoSm from "./assets/images/space-age-logo-sm.png";
+  import spaceExplorationLogoSm from "./assets/images/space-exploration-logo-sm.png";
   import trashIconBlack from "./assets/images/trash-icon-black.png";
   import trashIconWhite from "./assets/images/trash-icon-white.png";
-  import SelectBox from "./SelectBox.svelte";
 
   const defaultAlpha = 1;
   const defaultMaxSize = 50;
@@ -188,22 +192,14 @@
   </div>
   <div class="flex items-center">
     <a href="https://factorio.com/"
-      ><img
-        src="/images/factorio-logo-sm.png"
-        alt="Factorio logo"
-        class="w-60"
-      /></a
+      ><img src={factorioLogoSm} alt="Factorio logo" class="w-60" /></a
     >
     <a href="https://www.factorio.com/space-age/overview">
-      <img
-        src="/images/space-age-logo-sm.png"
-        alt="Space Age logo"
-        class="w-60"
-      />
+      <img src={spaceAgeLogoSm} alt="Space Age logo" class="w-60" />
     </a>
     <a href="https://mods.factorio.com/mod/space-exploration">
       <img
-        src="/images/space-exploration-logo-sm.png"
+        src={spaceExplorationLogoSm}
         alt="Space Exploration logo"
         class="w-60"
       />
@@ -281,7 +277,7 @@
           class="btn-copy-blueprint"
           disabled={!$store.blueprint}
           on:click={() => copyBlueprintToClipboard()}
-          ><img src="/images/blueprint-icon.png" alt="icon" /> Copy Import String</button
+          ><img src={blueprintIcon} alt="blueprint-icon" /> Copy Import String</button
         >
       </div>
       <InputGroup>
